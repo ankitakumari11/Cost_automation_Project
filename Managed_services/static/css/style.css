@@ -1,0 +1,174 @@
+
+        body {
+            margin: 20px;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            height: 100vh;
+            background: url('/static/img/backgroup_image.png');
+            background-size: cover;
+          }
+
+        .split-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 35px;
+        }
+
+        .split-left,
+        .split-right {
+            
+            overflow: auto;
+            text-align: auto;
+            transition: all 0.3s;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            margin: 5px;
+            padding: 10px;
+            
+        }
+
+        .split-left {
+          flex: 2;
+            color: #ffffff;
+            border: 2px solid grey;
+            
+            
+        }
+
+        .split-right {
+          flex: 1;
+            color: #333333;
+            border: 2px solid grey;
+          
+        }
+
+        @media (max-width: 768px) {
+            .split-container {
+                flex-direction: column;
+            }
+
+            .split-left,
+            .split-right {
+                margin: 5px;
+                width: 95%;
+                height: 48vh;
+            }
+        }
+        .fl{
+        float: left;
+      width: 275px;
+      line-height: 35px;
+    }
+    
+    .fontLabel{
+      color: #050505;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .fr{
+        float: right;
+        width: 400px;
+    }
+    
+    .clr{
+        clear: both;
+    }
+    
+    .box{
+        width: 700px;
+        height: 35px;
+        margin-top: 10px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        
+    }
+    .box1{
+        width: 700px;
+        height: 150px;
+        margin-top: 10px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+    }
+    
+    .textBox{
+        height: 35px;
+        width: 350px;
+        border: none;
+      padding-left: 20px;
+      background-color: #F1F1F1;
+    }
+    
+    .textarea{
+      height: 150px;
+        width: 350px;
+        border: none;
+      padding-left: 20px;
+      background-color: #F1F1F1;
+    }
+   
+    .radio{
+        color: #050505;
+        
+        line-height: 40px;
+        
+    }
+    
+    
+    .submit{
+        border: none;
+        color: white;
+        width: 110px;
+        height: 35px;
+        background: linear-gradient(135deg, #74D680, #378B29);
+        text-transform: uppercase;
+        cursor: pointer;
+   margin-left:350px;
+   left:50%;
+   
+      
+      
+    }
+    .split-left .title {
+  font-size: 25px;
+  font-weight: 500;
+  text-align: center;
+  color: #000;
+  
+}
+
+   .split-right .title {
+  font-size: 25px;
+  font-weight: 500;
+  text-align: center;
+  color: #000;
+  
+}
+.navbar {
+  overflow: hidden;
+  background-color: #454242;
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+.navbar a {
+  float: left;
+  display: block;
+  color: #f9f7f7;
+  text-align: center;
+  padding: 8px 10px;
+  text-decoration: none;
+  font-size: 20px;
+}
+
+.navbar-centered a {
+  float: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
