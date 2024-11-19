@@ -8,10 +8,17 @@
           content="width=device-width, initial-scale=1.0">
     
     <title>Cost Automation</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     
 </head>
 <body>
+    <div class="navbar">
+        {% load static %}
+          <a href="#"><img src="{% static 'img/logo.png' %}" width="55" height="30"></a>
+           <div class="navbar-centered">
+            <a href="#home">Managed Services Cost Analysis</a>
+          </div>
+        </div>
     <div class="split-container">
         <div class="split-left">
             <div class="title">Scoping Form</div><br>
@@ -371,6 +378,7 @@
             <p id="finalCostDisplay">Final Cost: {{ final_cost }}</p>
         </div>
     </div>
+
 
 
 

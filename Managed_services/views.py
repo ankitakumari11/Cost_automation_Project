@@ -94,5 +94,3 @@ def scoping_form(request):
     return render(request, 'home.html')
 
 
-
-    return render(request, 'success.html', context) 
