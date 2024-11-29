@@ -231,11 +231,7 @@
                         <option value="3" class="textBox">3</option>
                         <option value="4" class="textBox">4</option>
                         <option value="5" class="textBox">5</option>
-                        <option value="6" class="textBox">6</option>
-                        <option value="7" class="textBox">7</option>
-                        <option value="8" class="textBox">8</option>
-                        <option value="9" class="textBox">9</option>
-                        <option value="10" class="textBox">10</option>
+
                       </select>
             </div>
             <div class="clr"></div>
@@ -365,7 +361,7 @@
     		</div>
      
     		{% comment %}-Submit Button----{% endcomment %}
-    		<div class="box" style="background: #F1F1F1">
+    		<div class="box" >
     				<input type="Submit" name="Submit" class="submit" value="SUBMIT">
     		</div>
     		
@@ -374,8 +370,21 @@
         </div>
         <div class="split-right">
             <div class="title">Cost Analysis</div><br>
-            <h2>Final Cost</h2>
-            <p id="finalCostDisplay">Final Cost: {{ final_cost }}</p>
+            
+            <p id="finalCostDisplay">Final Cost: {{ final_cost |default:'0' }}</p>
+            <p>Customer Name: {{ cost_summary.customer_name|default:'0' }}</p>
+        <p>Project Status: {{ cost_summary.project_status|default:'0' }}</p>
+        <p>Contract Duration: {{ cost_summary.contract_duration|default:'0' }}</p>
+        <p>Resource Cost: {{ cost_summary.resource_cost|default:'0' }}</p>
+        <p>Tools: {{ cost_summary.tools |default:'0'}}</p>
+        <p>OnCall: {{ cost_summary.oncall|default:'0' }}</p>
+        <p>Travel: {{ cost_summary.travel|default:'0' }}</p>
+        <p>Penalty Risk: {{ cost_summary.penalty_risk|default:'0' }}</p>
+        <p>Total: {{ cost_summary.total |default:'0'}}</p>
+
+        <a href="{% url 'export_all_data' %}">
+          <button class="export-button">Export Data</button>
+      </a>
         </div>
     </div>
 
@@ -385,3 +394,4 @@
 </body>
 
 </html>
+

@@ -19,10 +19,12 @@ from django.urls import path,include
 from Managed_services import views
 from django.shortcuts import render
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.scoping_form),
     # path('success/', views.success, name='success'),
+    path("export_data/", views.export_all_data, name="export_all_data"),
 
 ]
 

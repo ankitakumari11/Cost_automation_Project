@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import ScopingForm, PrivatePublicCloudProjectCost ,Tool ,On_Call,CostCalculation , CostSummary, YearlyCostSummary
+from .models import ScopingForm, PrivatePublicCloudProjectCost ,Tool ,On_Call,CostCalculation , CostSummary, YearlyCostSummary ,ProjectResourceUtilisation
 
 @receiver(post_save, sender=ScopingForm)
 def update_project_costs(sender, instance, created, **kwargs):
@@ -33,3 +33,7 @@ def update_project_costs(sender, instance, created, **kwargs):
     CostSummary.populate_cost_summary()
 
     YearlyCostSummary.populate_yearly_cost_summary()
+
+    # Now, populate the ProjectResourceUtilisation table after the ScopingForm is saved
+    if created:  # Only append a new entry if it's a new ScopingForm
+        ProjectResourceUtilisation.populate_utilisation(scoping_form)

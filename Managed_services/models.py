@@ -116,8 +116,7 @@ class Travel(models.Model):
 #-----------------------------------Private_Public_CloudProjectCost--------------------------------------
 
 class PrivatePublicCloudProjectCost(models.Model):
-    
-
+   
     role_level = models.CharField(max_length=100)
     private_kpi = models.IntegerField(blank=True, null=True)  # Filled later based on role
     public_kpi = models.IntegerField(blank=True, null=True)   # Filled later based on role
@@ -139,7 +138,7 @@ class PrivatePublicCloudProjectCost(models.Model):
         self.support_window=scoping_form.support_window
 
         # Conditional logic for Private and Public KPI based on Role - Level and Hyper Converged Platform
-        if self.role_level in ['Storage/Backup - F', 'Storage/Backup - E2', 'Storage/Backup - E3']:
+        if self.role_level in ['Storage_Backup_F', 'Storage_Backup_E2', 'Storage_Backup_E3']:
             if scoping_form.hyper_converged_platform_used == 'Yes':
                 self.private_kpi = 3000
             else:
@@ -147,38 +146,38 @@ class PrivatePublicCloudProjectCost(models.Model):
                
 
         # Conditional logic for Private and Public KPI FTE based on Role - Level
-        if self.role_level in ['Incident & Problem Manager - E2', 'Change & Release Manager - E2']:
+        if self.role_level in ['Incident_Problem_Manager_E2', 'Change_Release_Manager_E2']:
             self.private_kpi_fte = 0.5 if scoping_form.ipc_management_in_scope == 'Yes' else 0
             self.public_kpi_fte = 0.5 if scoping_form.ipc_management_in_scope == 'Yes' else 0
-        elif self.role_level in ['Delivery Manager - E4', 'Delivery Head - E6', 'Architect - E4']:
+        elif self.role_level in ['Delivery_Manager_E4', 'Delivery_Head_E6', 'Architect_E4']:
             self.private_kpi_fte = 0.05 if scoping_form.management_governance_support == 'Yes' else 0
             self.public_kpi_fte = 0.05 if scoping_form.management_governance_support == 'Yes' else 0
-        elif self.role_level == 'DR Manager - E2':
+        elif self.role_level == 'DR_Manager_E2':
             self.private_kpi_fte = 0.2 if scoping_form.dr_in_scope == 'Yes' else 0
             self.public_kpi_fte = 0.2 if scoping_form.dr_in_scope == 'Yes' else 0
 
         # Conditional logic for Project Volume based on Role - Level
-        if self.role_level.startswith('Linux Engineer'):
+        if self.role_level.startswith('Linux_Engineer'):
             self.project_volume = scoping_form.no_of_linux_vms  # C9
-        elif self.role_level.startswith('Windows Engineer'):
+        elif self.role_level.startswith('Windows_Engineer'):
             self.project_volume = scoping_form.no_of_windows_vms  # C7
-        elif self.role_level.startswith('Cloud Engineer - OCI Cloud'):
+        elif self.role_level.startswith('Cloud_Engineer_OCI_Cloud'):
             self.project_volume = scoping_form.no_of_private_cloud_hosts  # C20
-        elif self.role_level.startswith('Storage/Backup'):
+        elif self.role_level.startswith('Storage_Backup'):
             self.project_volume = scoping_form.total_storage_capacity  # C14
-        elif self.role_level.startswith('Network Engineer'):
+        elif self.role_level.startswith('Network_Engineer'):
             self.project_volume = scoping_form.no_of_network_devices  # C12
-        elif self.role_level in ['Terraform/IaaC Automation Engineer - E2', 'Incident & Problem Manager - E2', 'Change & Release Manager - E2', 'Service Desk Lead - B', 'Monitoring/Service Desk Engineer - F']:
+        elif self.role_level in ['Terraform_IaaC_Automation_Engineer_E2', 'Incident_Problem_Manager_E2', 'Change_Release_Manager_E2', 'Service_Desk_Lead_B', 'Monitoring_Service_Desk_Engineer_F']:
             self.project_volume = scoping_form.Total_VMs_Devices  # C13
-        elif self.role_level.startswith('RDBMS Admin'):
+        elif self.role_level.startswith('RDBMS_Admin'):
             self.project_volume = scoping_form.no_of_rdbms_dbs  # C10
-        elif self.role_level.startswith('Non-RDBMS Admin'):
+        elif self.role_level.startswith('Non_RDBMS_Admin'):
             self.project_volume = scoping_form.no_of_nosql_dbs  # C11
-        elif self.role_level.startswith('AD Admin'):
+        elif self.role_level.startswith('AD_Admin'):
             self.project_volume = scoping_form.no_of_ad_objects  # C17
-        elif self.role_level in ['Team Lead - E3', 'PMO - E2', 'Delivery Manager - E4', 'Delivery Head - E6', 'Architect - E4']:
+        elif self.role_level in ['Team_Lead_E3', 'PMO_E2', 'Delivery_Manager_E4', 'Delivery_Head_E6', 'Architect_E4']:
             self.project_volume = 0.25 if scoping_form.Total_VMs_Devices >= 300 else 0.13  # C13
-        elif self.role_level == 'DR Manager - E2':
+        elif self.role_level == 'DR_Manager_E2':
             self.project_volume = 1 if scoping_form.no_of_servers_for_dr >= 300 else 0.25  # C23
        
         # Conditional logic for Project FTE calculation
@@ -189,6 +188,13 @@ class PrivatePublicCloudProjectCost(models.Model):
             kpi=self.public_kpi
             kpi_fte=self.public_kpi_fte
 
+                # Fallback in case kpi_fte is None
+        if kpi_fte is None:
+            kpi_fte = 0  # Set default value if kpi_fte is None
+
+        # Ensure project_volume is not None before calculation
+        if self.project_volume is None:
+            self.project_volume = 0  # Default to 0 if None
             
         if kpi:
             self.project_fte = (Decimal(self.project_volume) / Decimal(kpi)) * Decimal(kpi_fte)
@@ -228,16 +234,16 @@ class Tool(models.Model):
 
         # Define the role levels to filter by
         role_levels_to_sum = [
-            "Linux Engineer - F", "Linux Engineer - E2", "Linux Engineer - E3",
-            "Windows Engineer - F", "Windows Engineer - E2", "Windows Engineer - E3",
-            "Cloud Engineer - OCI Cloud - F", "Cloud Engineer - OCI Cloud - E2",
-            "Cloud Engineer - OCI Cloud - E3", "Storage/Backup - F", "Storage/Backup - E2",
-            "Storage/Backup - E3", "Network Engineer - F", "Network Engineer - E2", 
-            "Network Engineer - E3", "Terraform/IaaC Automation Engineer - E2",
-            "Incident & Problem Manager - E2", "Change & Release Manager - E2",
-            "RDBMS Admin - E2", "RDBMS Admin - E3", "Non-RDBMS Admin - E2",
-            "Non-RDBMS Admin - E3", "AD Admin - E2", "AD Admin - E3", 
-            "Service Desk Lead - B", "Monitoring/Service Desk Engineer - F", "Team Lead - E3"
+            "Linux_Engineer_F", "Linux_Engineer_E2", "Linux_Engineer_E3",
+            "Windows_Engineer_F", "Windows_Engineer_E2", "Windows_Engineer_E3",
+            "Cloud_Engineer_OCI_Cloud_F", "Cloud_Engineer_OCI_Cloud_E2",
+            "Cloud_Engineer_OCI_Cloud_E3", "Storage_Backup_F", "Storage_Backup_E2",
+            "Storage_Backup_E3", "Network_Engineer_F", "Network_Engineer_E2", 
+            "Network_Engineer_E3", "Terraform_IaaC_Automation_Engineer_E2",
+            "Incident_Problem_Manager_E2", "Change_Release_Manager_E2",
+            "RDBMS_Admin_E2", "RDBMS_Admin_E3", "Non_RDBMS_Admin_E2",
+            "Non_RDBMS_Admin_E3", "AD_Admin_E2", "AD_Admin_E3", 
+            "Service_Desk_Lead_B", "Monitoring_Service_Desk_Engineer_F", "Team_Lead_E3"
         ]
 
         # Calculate Quantity based on Function and Unit
@@ -550,6 +556,8 @@ class CostSummary(models.Model):
             total=total
         )
         cost_summary.save()
+
+        
     
 class YearlyCostSummary(models.Model):
     customer_name = models.CharField(max_length=255)
@@ -584,3 +592,71 @@ class YearlyCostSummary(models.Model):
         # Save the new YearlyCostSummary entry
         yearly_cost_summary.save()
    
+#----------------------------------------ProjectResourceUtilisation-------------------------------------
+class ProjectResourceUtilisation(models.Model):
+    customer_name = models.CharField(max_length=255)  # Customer name from ScopingForm
+
+    # Define columns for each role level with exact names
+    Linux_Engineer_F = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Linux_Engineer_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Linux_Engineer_E3 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Windows_Engineer_F = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Windows_Engineer_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Windows_Engineer_E3 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Cloud_Engineer_OCI_Cloud_F = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Cloud_Engineer_OCI_Cloud_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Cloud_Engineer_OCI_Cloud_E3 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Storage_Backup_F = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Storage_Backup_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Storage_Backup_E3 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Network_Engineer_F = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Network_Engineer_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Network_Engineer_E3 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Terraform_IaaC_Automation_Engineer_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Incident_Problem_Manager_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Change_Release_Manager_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    RDBMS_Admin_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    RDBMS_Admin_E3 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Non_RDBMS_Admin_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Non_RDBMS_Admin_E3 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    AD_Admin_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    AD_Admin_E3 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Service_Desk_Lead_B = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Monitoring_Service_Desk_Engineer_F = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Team_Lead_E3 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    PMO_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Delivery_Manager_E4 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Delivery_Head_E6 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    Architect_E4 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+    DR_Manager_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
+
+  
+    @classmethod
+    def populate_utilisation(cls, scoping_form):
+        customer_name = scoping_form.customer_name
+        
+        # Create or get the utilisation record for the customer
+        utilisation, created = cls.objects.get_or_create(customer_name=customer_name)
+
+        # Get all project costs
+        project_costs = PrivatePublicCloudProjectCost.objects.all()
+        for project_cost in project_costs:
+            role_level_column = project_cost.role_level.replace(" ", "_").replace("/", "_").replace("&", "and")
+            
+            # Debugging: Check if project_fte is correct
+            print(f"Role Level: {project_cost.role_level}, Project FTE: {project_cost.project_fte}")
+            
+            if hasattr(utilisation, role_level_column):
+                current_value = getattr(utilisation, role_level_column)
+                print(f"Current Value for {role_level_column}: {current_value}")
+                
+                # Ensure we're working with Decimal values and add project_fte to the current value
+                new_value = current_value + project_cost.project_fte
+                print(f"Updated Value for {role_level_column}: {new_value}")
+                
+                setattr(utilisation, role_level_column, new_value)
+            else:
+                print(f"Column {role_level_column} not found on ProjectResourceUtilisation.")
+        
+        # Save the updated or newly created record
+        utilisation.save()
