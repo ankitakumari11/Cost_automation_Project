@@ -1,0 +1,627 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" 
+          content="width=device-width, initial-scale=1.0">
+    
+    <title>Cost Automation</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+</head>
+<body>
+</div>
+    <div class="navbar">
+        {% load static %}
+          <a href="#"><img src="{% static 'img/logo.png' %}" width="55" height="30"></a>
+           <div class="navbar-centered">
+            <a href="#home">Managed Services Cost Analysis</a>
+            <button class="btn btn-new" onclick="window.location.href='{% url 'logout' %}'">Logout</button>
+          </div>
+        </div>
+    <div class="split-container">
+        <div class="split-left">
+            <div class="title">Modify Scoping Form</div><br>
+            <button class="btn btn-new" onclick="window.location.href='{% url 'home' %}'">Home</button>
+            <button class="btn btn-new" onclick="window.location.href='{% url 'new_form' %}'">Back to scoping form</button>
+      <form method="POST" autocomplete="on">   
+        {% csrf_token %}    
+        
+        {% comment %}Project name{% endcomment %}
+    		<div class="box">
+                <label for="ProjectName" class="fl fontLabel"> Project Name: </label>
+                <div class="fr">
+                    <select id="projectDropdown" name="ProjectName" class="textBox" required>
+                        <option value="" disabled selected>Select a Project</option>
+                        {% for project in projects %}
+                            <option value="{{ project.project_name }}">{{ project.project_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+    			<div class="clr"></div>
+    		</div>
+{% comment %} product name {% endcomment %}
+        <div class="box">
+          <label for="ProductName" class="fl fontLabel"> Product Name: </label>
+          <div class="fr">
+              <select required name="ProductName" placeholder="Product Name" class="textBox">
+                  <option value="Cloud_Re_sale" class="textBox">Cloud Re-sale</option>
+                  <option value="IBM_new" class="textBox">IBM new</option>
+                  <option value="Airtel_Cloud" class="textBox">Airtel Cloud</option>
+                  <option value="Exisiting_Cloud_Domestic" class="textBox">Exisiting Cloud-Domestic</option>
+                  <option value="GDCH" class="textBox">GDCH</option>
+                  <option value="Exisiting_Cloud_Nxtra" class="textBox">Exisiting Cloud-Nxtra</option>
+                  <option value="MS_Licence_Nxtra" class="textBox">MS Licence-Nxtra</option>
+                </select>
+      </div>
+      <div class="clr"></div>
+          
+            </div>
+
+        {% comment %} Customer name {% endcomment %}
+    		<div class="box">
+          <label for="CustomerName" class="fl fontLabel"> Customer Name: </label>
+    			
+    			<div class="fr">
+    					<input type="text" name="CustomerName" placeholder="Customer Name"
+              class="textBox" autofocus="on" required>
+    			</div>
+    			<div class="clr"></div>
+    		</div>
+         
+
+        {% comment %}-Project Description--{% endcomment %}
+          <div class="box1">
+        <label for="Description" class="fl fontLabel"> Project Description: </label>
+          
+              <div class="fr">
+                      <textarea name="Description" rows="6" cols="50" maxlength="600" class="textarea"></textarea><br>
+              </div>
+              <div class="clr"></div>
+          </div>
+
+           {% comment %}-Customer Location--{% endcomment %}
+      <div class="box">
+        <label for="Location" class="fl fontLabel"> Customer Location: </label>
+              
+              <div class="fr">
+                      <input type="text" required name="Location" placeholder="Customer Location" class="textBox">
+              </div>
+              <div class="clr"></div>
+          </div>
+
+          {% comment %}-Received Date--{% endcomment %}
+          <div class="box">
+        <label for="ReceivedDate" class="fl fontLabel"> Received Date: </label>
+              
+              <div class="fr">
+                      <input type="date" required name="ReceivedDate" class="textBox">
+              </div>
+              <div class="clr"></div>
+          </div>
+
+          {% comment %}-Submission Date--{% endcomment %}
+          <div class="box">
+        <label for="SubmissionDate" class="fl fontLabel"> Submission Date: </label>
+              
+              <div class="fr">
+                      <input type="date" required name="SubmissionDate" class="textBox">
+              </div>
+              <div class="clr"></div>
+          </div>
+
+    		{% comment %}-Project Status----{% endcomment %}
+    		<div class="box">
+                <label for="ProjectStatus" class="fl fontLabel"> Project Status: </label>
+                <div class="fr">
+                    <select required name="ProjectStatus" placeholder="Project Status" class="textBox">
+                        <option value="Active" class="textBox">Active</option>
+                        <option value="Cancelled" class="textBox">Cancelled</option>
+                        <option value="Closed" class="textBox">Closed</option>
+                        <option value="Dropped" class="textBox">Dropped</option>
+                        <option value="Hold" class="textBox">Hold</option>
+                        <option value="Lost" class="textBox">Lost</option>
+                        <option value="Passive" class="textBox">Passive</option>
+                        <option value="Submitted" class="textBox">Submitted</option>
+                        <option value="Won" class="textBox">Won</option>
+                      </select>
+            </div>
+            <div class="clr"></div>
+                
+                  </div>
+            {% comment %}-Margin %--{% endcomment %}
+    		<div class="box">
+          <label for="Margin" class="fl fontLabel"> Margin %: </label>
+    			
+    			<div class="fr">
+    					<input type="number" min="0" required name="Margin" placeholder="Margin %" class="textBox">
+    			</div>
+    			<div class="clr"></div>
+    		</div>
+    		
+    		{% comment %}-Penalty Risk----{% endcomment %}
+    		<div class="box">
+          <label for="PenaltyRisk" class="fl fontLabel"> Penalty Risk %: </label>
+    			
+    			<div class="fr">
+    					<input type="number" min="0" required name="PenaltyRisk" placeholder="Penalty Risk" class="textBox">
+    			</div>
+    			<div class="clr"></div>
+    		</div>
+
+            {% comment %}Windows VM's{% endcomment %}
+    		<div class="box">
+                <label for="WindowsVM" class="fl fontLabel"> No of Windows VM's: </label>
+                      
+                      <div class="fr">
+                              <input type="number" min="0" name="WindowsVM" placeholder="Windows VM's" class="textBox" autofocus="on" required>
+                      </div>
+                      <div class="clr"></div>
+                  </div>
+                  
+                  {% comment %}-OnCall---{% endcomment %}
+    		<div class="box radio">
+                <label for="OnCall" class="fl fontLabel"> OnCall Required: </label>
+                          <input type="radio" name="OnCall" value="Yes" required> Yes &nbsp; &nbsp; &nbsp; &nbsp;
+                          <input type="radio" name="OnCall" value="No" required> No
+                  </div>
+                  
+              {% comment %}Linux VM's{% endcomment %}
+                  <div class="box">
+                <label for="LinuxVM" class="fl fontLabel"> No of Linux VM's: </label>
+                      
+                      <div class="fr">
+                              <input type="number" min="0" required name="LinuxVM" placeholder="Linux VM's" class="textBox">
+                      </div>
+                      <div class="clr"></div>
+                  </div>
+                
+                  {% comment %}-RDBM DB's----{% endcomment %}
+                  <div class="box">
+                <label for="RDBMdB" class="fl fontLabel"> NO of RDBM DB's: </label>
+                      
+                      <div class="fr">
+                              <input type="number" min="0" required name="RDBMdB" maxlength="10" placeholder="RDBM DB's" class="textBox">
+                      </div>
+                      <div class="clr"></div>
+                  </div>
+                  
+                  {% comment %}-NOSQL DB's--{% endcomment %}
+                  <div class="box">
+                <label for="NOSQLdB" class="fl fontLabel"> No of NOSQL DB's: </label>
+                      
+                      <div class="fr">
+                              <input type="number" min="0" required name="NOSQLdB" placeholder="NOSQL DB's" class="textBox">
+                      </div>
+                      <div class="clr"></div>
+                  </div>
+                   {% comment %}-network devices----{% endcomment %}
+                  <div class="box">
+                <label for="NetworkDevices" class="fl fontLabel"> No of network devices/vNets: </label>
+                      
+                      <div class="fr">
+                              <input type="number" min="0" required name="NetworkDevices" placeholder="Network Devices" class="textBox">
+                      </div>
+                      <div class="clr"></div>
+                  </div>
+
+                  {% comment %}Storage capacity{% endcomment %}
+    		<div class="box">
+                <label for="StorageCapacity" class="fl fontLabel"> Total Storage capacity-TB: </label>
+                      
+                      <div class="fr">
+                              <input type="number" min="0" name="StorageCapacity" placeholder="Storage Capacity" class="textBox" autofocus="on" required>
+                      </div>
+                      <div class="clr"></div>
+                  </div>
+      
+              {% comment %}-Support Window---{% endcomment %}
+    		<div class="box">
+                <label for="SupportWindow" class="fl fontLabel"> Support Window: </label>
+                <div class="fr">
+                    <select required name="SupportWindow" placeholder="Support Window" class="textBox">
+                        <option value="8x5" class="textBox">8x5</option>
+                        <option value="24x7" class="textBox">24x7</option>
+                        <option value="16x5" class="textBox">16x5</option>
+                      </select>
+            </div>
+            <div class="clr"></div>
+                  </div>
+                  {% comment %}-YoY Increment----{% endcomment %}
+                  <div class="box">
+                <label for="YoYIncrement" class="fl fontLabel"> YoY Increment: </label>
+                      
+                      <div class="fr">
+                              <input type="number" min="0" required name="YoYIncrement" maxlength="10" placeholder="YoY Increment" class="textBox">
+                      </div>
+                      <div class="clr"></div>
+                  </div>
+      
+                  {% comment %}-no of AD--{% endcomment %}
+                  <div class="box">
+                <label for="noOfAD" class="fl fontLabel"> IF Active Directory is in scope, no. of AD: </label>
+                      
+                      <div class="fr">
+                              <input type="number" min="0" required name="noOfAD" placeholder="No. of AD" class="textBox">
+                      </div>
+                      <div class="clr"></div>
+                  </div>
+      
+                  {% comment %}-Contract duration---{% endcomment %}
+    		<div class="box">
+                <label for="ContractDuration" class="fl fontLabel"> Contract duration in no of years: </label>
+                <div class="fr">
+                    <select required name="ContractDuration" placeholder="Contract Duration" class="textBox">
+                        <option value="1" class="textBox">1</option>
+                        <option value="2" class="textBox">2</option>
+                        <option value="3" class="textBox">3</option>
+                        <option value="4" class="textBox">4</option>
+                        <option value="5" class="textBox">5</option>
+                        <option value="6" class="textBox">6</option>
+                        <option value="7" class="textBox">7</option>
+                        <option value="8" class="textBox">8</option>
+                        <option value="9" class="textBox">9</option>
+                        <option value="10" class="textBox">10</option>
+
+                      </select>
+            </div>
+            <div class="clr"></div>
+                
+                  </div>
+                  {% comment %}-Type of DC {% endcomment %}
+    		<div class="box">
+                <label for="TypeOfDC" class="fl fontLabel"> Type of DC: </label>
+                <div class="fr">
+                    <select required name="TypeOfDC" placeholder="Type of DC" class="textBox">
+                        <option value="Private Cloud" class="textBox">Private Cloud</option>
+                        <option value="Public Cloud" class="textBox">Public Cloud</option>
+                      </select>
+            </div>
+            <div class="clr"></div>
+                
+                  </div>
+
+                  {% comment %}-Priavte Cloud Hosts----{% endcomment %}
+                  <div class="box">
+                    <label for="PriavteCloudHosts" class="fl fontLabel"> No of Priavte Cloud Hosts: </label>
+                          
+                          <div class="fr">
+                                  <input type="number" min="0" required name="PriavteCloudHosts" placeholder="Priavte Cloud Hosts" class="textBox">
+                          </div>
+                          <div class="clr"></div>
+                      </div>
+
+                      {% comment %}-Converged Platform---{% endcomment %}
+    		<div class="box radio">
+                <label for="ConvergedPlatform" class="fl fontLabel"> Hyper Converged Platform used: </label>
+                          <input type="radio" name="ConvergedPlatform" value="Yes" required> Yes &nbsp; &nbsp; &nbsp; &nbsp;
+                          <input type="radio" name="ConvergedPlatform" value="No" required> No
+                  </div>
+                  {% comment %}-DR In Scope---{% endcomment %}
+<div class="box radio">
+    <label for="DRInScope" class="fl fontLabel"> DR In Scope: </label>
+              <input type="radio" name="DRInScope" value="Yes" required> Yes &nbsp; &nbsp; &nbsp; &nbsp;
+              <input type="radio" name="DRInScope" value="No" required> No
+      </div>
+
+                  {% comment %}-Servers for DR----{% endcomment %}
+      <div class="box">
+        <label for="ServersforDR" class="fl fontLabel"> No of Servers for DR: </label>
+              
+              <div class="fr">
+                      <input type="number" min="0" required name="ServersforDR" placeholder="Servers for DR" class="textBox">
+              </div>
+              <div class="clr"></div>
+          </div>
+
+          {% comment %}-DR Drills----{% endcomment %}
+      <div class="box">
+        <label for="DRdrills" class="fl fontLabel"> No of DR Drills per year: </label>
+              
+              <div class="fr">
+                      <input type="number" min="0" required name="DRdrills" placeholder="DR Drills" class="textBox">
+              </div>
+              <div class="clr"></div>
+          </div>
+          {% comment %}-Complexity---{% endcomment %}
+<div class="box">
+    <label for="Complexity" class="fl fontLabel"> Complexity: </label>
+    <div class="fr">
+        <select required name="Complexity" placeholder="Complexity" class="textBox">
+            <option value="low" class="textBox">Low</option>
+            <option value="medium" class="textBox">Medium</option>
+            <option value="high" class="textBox">High</option>
+          </select>
+</div>
+<div class="clr"></div>
+      </div>      
+          {% comment %}-Monitoring---{% endcomment %}
+<div class="box radio">
+    <label for="Monitoring" class="fl fontLabel"> Monitoring in Scope: </label>
+              <input type="radio" name="Monitoring" value="Yes" required> Yes &nbsp; &nbsp; &nbsp; &nbsp;
+              <input type="radio" name="Monitoring" value="No" required> No
+      <div class="clr"></div>
+    
+      </div>
+      
+      {% comment %}-Patching---{% endcomment %}
+<div class="box radio">
+    <label for="Patching" class="fl fontLabel"> Patching in scope: </label>
+              <input type="radio" name="Patching" value="Yes" required> Yes &nbsp; &nbsp; &nbsp; &nbsp;
+              <input type="radio" name="Patching" value="No" required> No
+      <div class="clr"></div>
+    
+      </div>
+      
+      {% comment %}-ITSM services---{% endcomment %}
+<div class="box radio">
+    <label for="ITSMservices" class="fl fontLabel"> ITSM services in Scope: </label>
+              <input type="radio" name="ITSMservices" value="Yes" required> Yes &nbsp; &nbsp; &nbsp; &nbsp;
+              <input type="radio" name="ITSMservices" value="No" required> No
+      </div>
+      
+      {% comment %}-IPC Management---{% endcomment %}
+<div class="box radio">
+    <label for="IPCManagement" class="fl fontLabel"> IPC Management in Scope: </label>
+              <input type="radio" name="IPCManagement" value="Yes" required> Yes &nbsp; &nbsp; &nbsp; &nbsp;
+              <input type="radio" name="IPCManagement" value="No" required> No
+      </div>
+      {% comment %}-Travel---{% endcomment %}
+<div class="box radio">
+    <label for="Travel" class="fl fontLabel"> Travel Required: </label>
+              <input type="radio" name="Travel" value="Yes" required> Yes &nbsp; &nbsp; &nbsp; &nbsp;
+              <input type="radio" name="Travel" value="No" required> No
+      </div>
+      
+      {% comment %}-Governance Support---{% endcomment %}
+<div class="box radio">
+    <label for="GovernanceSupport" class="fl fontLabel"> Management Governance Support: </label>
+              <input type="radio" name="GovernanceSupport" value="Yes" required> Yes &nbsp; &nbsp; &nbsp; &nbsp;
+              <input type="radio" name="GovernanceSupport" value="No" required> No
+      </div>
+      {% comment %}-TCV--{% endcomment %}
+    		<div class="box">
+          <label for="TCV" class="fl fontLabel"> TCV (in Crore): </label>
+    			
+    			<div class="fr">
+    					<input type="number" min="0" required name="TCV" placeholder="TCV" class="textBox">
+    			</div>
+    			<div class="clr"></div>
+    		</div>
+     
+    		{% comment %}-Submit Button----{% endcomment %}
+    		<div class="box" >
+    				<input type="Submit" name="Submit" class="submit" value="SUBMIT">
+    		</div>
+    		
+      </form>
+
+      {% comment %} COST ESTIMATION {% endcomment %}
+ 
+        </div>
+          <div class="split-right">
+            <div class="title">Cost Estimation</div><br>
+            <div id="alert-message" style="display: none; color: red; background-color: #fad1d0; padding: 10px; border-radius: 5px; font-weight: bold; text-align: center; margin-bottom: 15px;"></div>
+
+            <p id="finalCostDisplay">
+                Final Cost: 
+                {% if final_cost and final_cost != "0" %}₹{{ final_cost }}{% else %}{{ final_cost|default:'0' }}{% endif %}
+            </p>
+            <p>Customer Name: {{ cost_summary.customer_name|default:'0' }}</p>
+            <p id="projectName">Project Name: {{ cost_summary.project_name|default:'0' }}</p>
+            <p>Project Status: {{ cost_summary.project_status|default:'0' }}</p>
+            <p>Product Name: {{ product_name|default:'0' }}</p>
+            <p>Contract Duration: {{ cost_summary.contract_duration|default:'0' }}</p>
+            <p>Resource Cost: 
+                {% if cost_summary.resource_cost and cost_summary.resource_cost != "0" %}₹{{ cost_summary.resource_cost }}{% else %}{{ cost_summary.resource_cost|default:'0' }}{% endif %}
+            </p>
+            <p>Tools: 
+                {% if cost_summary.tools and cost_summary.tools != "0" %}₹{{ cost_summary.tools }}{% else %}{{ cost_summary.tools|default:'0' }}{% endif %}
+            </p>
+            <p>OnCall: 
+                {% if cost_summary.oncall and cost_summary.oncall != "0" %}₹{{ cost_summary.oncall }}{% else %}{{ cost_summary.oncall|default:'0' }}{% endif %}
+            </p>
+            <p>Travel: 
+                {% if cost_summary.travel and cost_summary.travel != "0" %}₹{{ cost_summary.travel }}{% else %}{{ cost_summary.travel|default:'0' }}{% endif %}
+            </p>
+            <p>Penalty Risk: 
+                {% if cost_summary.penalty_risk and cost_summary.penalty_risk != "0" %}₹{{ cost_summary.penalty_risk }}{% else %}{{ cost_summary.penalty_risk|default:'0' }}{% endif %}
+            </p>
+            <p>Total: 
+                {% if cost_summary.total and cost_summary.total != "0" %}₹{{ cost_summary.total }}{% else %}{{ cost_summary.total|default:'0' }}{% endif %}
+            </p>
+     
+
+      <div class="button-container">
+    <button class="export-button" id="export-data-btn">Export Data</button>
+</div>
+        </div>
+    </div>
+
+
+        <!-- Inline JavaScript -->
+        <script>
+            document.getElementById("projectDropdown").addEventListener("change", function () {
+                const projectName = this.value; // Get selected project_name
+                // Make an AJAX request to fetch data
+                fetch(`/fetch_project_data/?project_name=${encodeURIComponent(projectName)}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    return response.json();
+                })
+                .then(data =>{
+                        // Populate form fields with the returned data
+                        document.querySelector("select[name='ProductName']").value = data.product_name;
+                        document.querySelector("input[name='CustomerName']").value = data.CustomerName;
+                        document.querySelector("textarea[name='Description']").value = data.Description;
+                        document.querySelector("input[name='Location']").value = data.Location;
+                        document.querySelector("input[name='ReceivedDate']").value = data.ReceivedDate;
+                        document.querySelector("input[name='SubmissionDate']").value = data.SubmissionDate;
+                        
+                        document.querySelector("select[name='ProjectStatus']").value = data.ProjectStatus;
+                        document.querySelector("input[name='Margin']").value = data.Margin;
+                        document.querySelector("input[name='PenaltyRisk']").value = data.PenaltyRisk;
+                        document.querySelector("input[name='WindowsVM']").value = data.WindowsVM;
+                        
+                        {% comment %} On call {% endcomment %}
+                        radioButton = document.querySelector(`input[name='OnCall'][value='${data.OnCall}']`);
+
+                        if (radioButton) {
+                          radioButton.checked = true; // Select the correct radio button
+                      } else {
+                          console.error("No matching radio button found for OnCall value:", data.OnCall);
+                      }
+
+                        document.querySelector("input[name='LinuxVM']").value = data.LinuxVM;
+                        document.querySelector("input[name='RDBMdB']").value = data.RDBMdB;
+                        document.querySelector("input[name='NOSQLdB']").value = data.NOSQLdB;
+                        document.querySelector("input[name='NetworkDevices']").value = data.NetworkDevices;
+                        document.querySelector("input[name='StorageCapacity']").value = data.StorageCapacity;
+                        
+                        document.querySelector("select[name='SupportWindow']").value = data.SupportWindow;
+                        document.querySelector("input[name='YoYIncrement']").value = data.YoYIncrement;
+                        document.querySelector("input[name='noOfAD']").value = data.noOfAD;
+                        document.querySelector("select[name='ContractDuration']").value = data.ContractDuration;
+                        document.querySelector("select[name='TypeOfDC']").value = data.TypeOfDC;
+                        document.querySelector("input[name='PriavteCloudHosts']").value = data.PriavteCloudHosts;
+                        
+                        CP_radioButton = document.querySelector(`input[name='ConvergedPlatform'][value='${data.ConvergedPlatform}']`);
+
+                        if (CP_radioButton) {
+                          CP_radioButton.checked = true; // Select the correct radio button
+                      } else {
+                          console.error("No matching radio button found for ConvergedPlatform value:", data.OnCall);
+                      }
+
+
+                        DRInScope_radioButton = document.querySelector(`input[name='DRInScope'][value='${data.dr_in_scope}']`);
+
+                          if (DRInScope_radioButton) {
+                            DRInScope_radioButton.checked = true; // Select the correct radio button
+                        } else {
+                            console.error("No matching radio button found for ConvergedPlatform value:", data.OnCall);
+                        }
+                    
+                        document.querySelector("input[name='ServersforDR']").value = data.no_of_servers_for_dr;
+                        document.querySelector("input[name='DRdrills']").value = data.dr_drills;
+                        document.querySelector("select[name='Complexity']").value = data.complexity;
+                        
+                        Monitoring_radioButton = document.querySelector(`input[name='Monitoring'][value='${data.monitoring}']`);
+
+                          if (Monitoring_radioButton) {
+                            Monitoring_radioButton.checked = true; // Select the correct radio button
+                        } else {
+                            console.error("No matching radio button found for Monitoring value:", data.OnCall);
+                        }
+
+                        Patching_radioButton = document.querySelector(`input[name='Patching'][value='${data.patching}']`);
+
+                          if (Patching_radioButton) {
+                            Patching_radioButton.checked = true; // Select the correct radio button
+                        } else {
+                            console.error("No matching radio button found for patching value:", data.OnCall);
+                        }
+
+                        itsm_services_radioButton = document.querySelector(`input[name='ITSMservices'][value='${data.itsm_services}']`);
+
+                          if (itsm_services_radioButton) {
+                            itsm_services_radioButton.checked = true; // Select the correct radio button
+                        } else {
+                            console.error("No matching radio button found for itsm_services value:", data.OnCall);
+                        }
+
+                        IPCManagement_radioButton = document.querySelector(`input[name='IPCManagement'][value='${data.ipc_management_in_scope}']`);
+
+                          if (IPCManagement_radioButton) {
+                            IPCManagement_radioButton.checked = true; // Select the correct radio button
+                        } else {
+                            console.error("No matching radio button found for IPCManagement value:", data.OnCall);
+                        }
+
+                        travel_radioButton = document.querySelector(`input[name='Travel'][value='${data.travel}']`);
+
+                          if (travel_radioButton) {
+                            travel_radioButton.checked = true; // Select the correct radio button
+                        } else {
+                            console.error("No matching radio button found for travel value:", data.OnCall);
+                        }
+
+                        GovernanceSupport_radioButton = document.querySelector(`input[name='GovernanceSupport'][value='${data.management_governance_support}']`);
+
+                          if (GovernanceSupport_radioButton) {
+                            GovernanceSupport_radioButton.checked = true; // Select the correct radio button
+                        } else {
+                            console.error("No matching radio button found for management_governance_support value:", data.OnCall);
+                        }
+
+
+                        document.querySelector("input[name='TCV']").value = data.tcv;
+                    })
+                    .catch(error => console.error("Error fetching project data:", error));
+            });
+
+
+      {% comment %} export button {% endcomment %}
+
+      document.getElementById("export-data-btn").addEventListener("click", function (e) {
+        e.preventDefault();
+ 
+        // Get the customer name text
+        const project_nameText = document.getElementById("projectName").textContent.trim();
+        const project_nameName = project_nameText.replace("Project Name: ", "").trim(); // Extract the actual name
+ 
+        // Check if customer name is missing or invalid
+        if (!project_nameName || project_nameName === "0") {
+            // Show alert message
+            const alertDiv = document.getElementById("alert-message");
+            alertDiv.textContent = "No data to be exported";
+            alertDiv.style.display = "block";
+        } else {
+            // Redirect to the export URL if customer name is valid
+            window.location.href = "{% url 'export_all_data' %}";
+        }
+    });
+
+
+     
+             document.getElementById("export-data-btn").addEventListener("click", function (e) {
+          e.preventDefault();
+   
+          // Get the customer name text
+          const project_nameText = document.getElementById("projectName").textContent.trim();
+          const project_nameName = project_nameText.replace("Project Name: ", "").trim(); // Extract the actual name
+   
+          // Check if customer name is missing or invalid
+          if (!project_nameName || project_nameName === "0") {
+              // Show alert message
+              const alertDiv = document.getElementById("alert-message");
+              alertDiv.textContent = "No data to be exported";
+              alertDiv.style.display = "block";
+          } else {
+              // Redirect to the export URL if customer name is valid
+              window.location.href = "{% url 'export_all_data' %}";
+          }
+      });
+
+
+      window.onload = function() {
+        console.log("Page loaded.");
+        if (window.location.pathname === "/ModifyForm/") {
+          window.history.replaceState(null, null, "/ModifyForm/");  
+          console.log("State replaced for Newform");
+        }
+      };
+
+    window.addEventListener("pageshow", function (event) {
+        if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+            window.location.href = '{% url 'new_form' %}'; // Replace '/' with your home page URL
+        }
+    }); 
+
+
+        </script>
+</body>
+
+</html>
+

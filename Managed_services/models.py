@@ -4,12 +4,25 @@ from decimal import Decimal , ROUND_HALF_UP ,ROUND_CEILING
 from django.db.models import Sum
 from django.core.validators import MinValueValidator
 from django.utils import timezone
+from .utils import get_current_project_name
 
 #ScopingForm----------------------------------------------------------------------
 class ScopingForm(models.Model):
     # Basic Information
     customer_name = models.CharField(max_length=255)
-    project_name = models.CharField(max_length=255)
+    project_name = models.CharField(max_length=255 ,unique=True)
+    PRODUCT_NAME_CHOICES = [
+        ('Cloud_Re_sale', 'Cloud_Re_sale'),
+        ('IBM_new', 'IBM_new'),
+        ('Airtel_Cloud', 'Airtel_Cloud'),
+        ('Exisiting_Cloud_Domestic', 'Exisiting_Cloud_Domestic'),
+        ('GDCH', 'GDCH'),
+        ('Exisiting_Cloud_Nxtra', 'Exisiting_Cloud_Nxtra'),
+        ('MS_Licence_Nxtra', 'MS_Licence_Nxtra'),
+    ]
+    product_name = models.CharField(max_length=30, choices=PRODUCT_NAME_CHOICES ,default="No product_name provided")
+
+
     description = models.TextField(max_length=600, blank=True, null=True ,default="No description provided")
     location = models.CharField(max_length=255 , default="Not specified")
     received_date = models.DateField(default=timezone.now)
@@ -75,7 +88,7 @@ class ScopingForm(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.customer_name
+        return self.project_name
 
 # Rate card-----------------------------------------------------------------
 class RateCard(models.Model):
@@ -132,7 +145,19 @@ class PrivatePublicCloudProjectCost(models.Model):
 
     def save(self, *args, **kwargs):
         # Assume you're using the latest ScopingForm filled in
-        scoping_form = ScopingForm.objects.last()
+        # scoping_form = ScopingForm.objects.last()
+        
+        
+        project_name = get_current_project_name()
+        if not project_name:
+            raise ValueError("Project name not found in thread-local storage.")
+
+        # Fetch the related ScopingForm using the project_name
+        scoping_form = ScopingForm.objects.filter(project_name=project_name).first()
+        if not scoping_form:
+            raise ValueError(f"No ScopingForm found for project_name: {project_name}")
+        
+
 
         # Support window
         self.support_window=scoping_form.support_window
@@ -230,7 +255,16 @@ class Tool(models.Model):
 
     def save(self, *args, **kwargs):
         # Fetch the latest ScopingForm instance
-        scoping_form = ScopingForm.objects.last()
+        # scoping_form = ScopingForm.objects.last()
+
+        project_name = get_current_project_name()
+        if not project_name:
+            raise ValueError("Project name not found in thread-local storage.")
+
+        # Fetch the related ScopingForm using the project_name
+        scoping_form = ScopingForm.objects.filter(project_name=project_name).first()
+        if not scoping_form:
+            raise ValueError(f"No ScopingForm found for project_name: {project_name}")
 
         # Define the role levels to filter by
         role_levels_to_sum = [
@@ -306,7 +340,16 @@ class On_Call(models.Model):
 
     def save(self, *args, **kwargs):
         # Fetch the latest ScopingForm instance
-        scoping_form = ScopingForm.objects.latest('id')
+        # scoping_form = ScopingForm.objects.latest('id')
+
+        project_name = get_current_project_name()
+        if not project_name:
+            raise ValueError("Project name not found in thread-local storage.")
+
+        # Fetch the related ScopingForm using the project_name
+        scoping_form = ScopingForm.objects.filter(project_name=project_name).first()
+        if not scoping_form:
+            raise ValueError(f"No ScopingForm found for project_name: {project_name}")
 
 
         if scoping_form:
@@ -334,6 +377,11 @@ class CostCalculation(models.Model):
     y3 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     y4 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     y5 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    y6 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    y7 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    y8 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    y9 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    y10 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
 
     def __str__(self):
         return self.cost_category
@@ -344,7 +392,16 @@ class CostCalculation(models.Model):
         Calculate and update values based on the complexity level from the latest ScopingForm.
         """
         # Fetch the latest ScopingForm data
-        scoping_form = ScopingForm.objects.last()
+        # scoping_form = ScopingForm.objects.last()
+        project_name = get_current_project_name()
+        if not project_name:
+            raise ValueError("Project name not found in thread-local storage.")
+
+        # Fetch the related ScopingForm using the project_name
+        scoping_form = ScopingForm.objects.filter(project_name=project_name).first()
+        if not scoping_form:
+            raise ValueError(f"No ScopingForm found for project_name: {project_name}")
+
         complexity_level = scoping_form.complexity  # Assuming 'complexity_level' field exists in ScopingForm
     
 
@@ -398,10 +455,10 @@ class CostCalculation(models.Model):
         required_categories = ['Resources Cost', 'Tools', 'OnCall', 'Travel', 'Overhead', 'Margin', 'Penalty Risk', 'Sum']
 
         # Initialize yearly values with all required categories set to 0 for each year
-        yearly_values = {f'y{year}': {category: Decimal('0.00') for category in required_categories} for year in range(1, 6)}
+        yearly_values = {f'y{year}': {category: Decimal('0.00') for category in required_categories} for year in range(1, 11)}
 
         # Calculate yearly values based on contract duration and assign calculated values
-        for year in range(1, 6):
+        for year in range(1, 11):
             if contract_duration >= year:
                 if year == 1:
                     yearly_values['y1'] = {key: value * 12 for key, value in monthly_values.items()}
@@ -466,7 +523,7 @@ class CostCalculation(models.Model):
         
                 
         # Calculate final cost after calculating yearly values
-        final_cost = sum(yearly_values[f'y{year}']['Sum'] for year in range(1,6)).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        final_cost = sum(yearly_values[f'y{year}']['Sum'] for year in range(1,11)).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         if(scoping_form.support_window=='16x5'):
             final_cost=final_cost*Decimal("1.5")
         elif (scoping_form.support_window=='24x7'):
@@ -479,7 +536,7 @@ class CostCalculation(models.Model):
         for category, monthly_value in monthly_values.items():
             cost_calculation, created = CostCalculation.objects.get_or_create(cost_category=category)
             cost_calculation.monthly = monthly_value
-            for year in range(1, 6):
+            for year in range(1, 11):
                 year_key = f'y{year}'
                 if year_key in yearly_values and category in yearly_values[year_key]:
                     setattr(cost_calculation, year_key, yearly_values[year_key][category])
@@ -487,8 +544,10 @@ class CostCalculation(models.Model):
 
         return final_cost
 
-    
+
+
 class CostSummary(models.Model):
+    project_name = models.CharField(max_length=255 , default="Not available")
     customer_name = models.CharField(max_length=255)
     project_status = models.CharField(max_length=50)
     contract_duration = models.IntegerField()
@@ -500,12 +559,19 @@ class CostSummary(models.Model):
     total = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
 
     def __str__(self):
-        return f"Cost Summary for {self.customer_name} - {self.project_status}"
+        return f"Cost Summary for {self.project_name} - {self.project_status}"
 
     @staticmethod
     def populate_cost_summary():
-        # Get the most recent ScopingForm
-        scoping_form = ScopingForm.objects.last()
+        # Get the current project name from thread-local storage
+        project_name = get_current_project_name()
+        if not project_name:
+            raise ValueError("Project name not found in thread-local storage.")
+
+        # Fetch the related ScopingForm using the project_name
+        scoping_form = ScopingForm.objects.filter(project_name=project_name).first()
+        if not scoping_form:
+            raise ValueError(f"No ScopingForm found for project_name: {project_name}")
 
         # Retrieve the values from the CostCalculation table for each cost category
         cost_categories = ['Resources Cost', 'Tools', 'OnCall', 'Travel', 'Penalty Risk', 'Sum']
@@ -522,8 +588,8 @@ class CostSummary(models.Model):
         for category in cost_categories:
             cost_calculation = CostCalculation.objects.filter(cost_category=category)
             for calc in cost_calculation:
-                for year in range(1, 6):
-                    # Accumulate the values for each year (Y1 to Y5) and category
+                for year in range(1, 11):
+                    # Accumulate the values for each year (Y1 to Y10) and category
                     value = getattr(calc, f'y{year}', Decimal('0.00'))
                     if category == 'Resources Cost':
                         resource_cost += value
@@ -543,29 +609,51 @@ class CostSummary(models.Model):
         project_status = scoping_form.project_status
         contract_duration = scoping_form.contract_duration
 
-        # Create and save the new CostSummary entry
-        cost_summary = CostSummary(
-            customer_name=customer_name,
-            project_status=project_status,
-            contract_duration=contract_duration,
-            resource_cost=resource_cost,
-            tools=tools,
-            oncall=oncall,
-            travel=travel,
-            penalty_risk=penalty_risk,
-            total=total
-        )
-        cost_summary.save()
+        # Check if a CostSummary already exists for the given project_name
+        cost_summary = CostSummary.objects.filter(project_name=project_name).first()
 
-        
-    
+        if cost_summary:
+            # Update the existing record
+            cost_summary.customer_name = customer_name
+            cost_summary.project_status = project_status
+            cost_summary.contract_duration = contract_duration
+            cost_summary.resource_cost = resource_cost
+            cost_summary.tools = tools
+            cost_summary.oncall = oncall
+            cost_summary.travel = travel
+            cost_summary.penalty_risk = penalty_risk
+            cost_summary.total = total
+            cost_summary.save()
+        else:
+            # Create a new record
+            cost_summary = CostSummary(
+                project_name=project_name,
+                customer_name=customer_name,
+                project_status=project_status,
+                contract_duration=contract_duration,
+                resource_cost=resource_cost,
+                tools=tools,
+                oncall=oncall,
+                travel=travel,
+                penalty_risk=penalty_risk,
+                total=total
+            )
+            cost_summary.save()
+
 class YearlyCostSummary(models.Model):
+    project_name = models.CharField(max_length=255 , default="Not available")
+
     customer_name = models.CharField(max_length=255)
     y1 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     y2 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     y3 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     y4 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     y5 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    y6 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    y7 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    y8 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    y9 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    y10 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
 
     def __str__(self):
         return f"Yearly Cost Summary for {self.customer_name}"
@@ -573,29 +661,64 @@ class YearlyCostSummary(models.Model):
     @staticmethod
     def populate_yearly_cost_summary():
         # Get the most recent ScopingForm
-        scoping_form = ScopingForm.objects.last()
+        # scoping_form = ScopingForm.objects.last()
+
+        # Get the current project name from thread-local storage
+        project_name = get_current_project_name()
+        if not project_name:
+            raise ValueError("Project name not found in thread-local storage.")
+
+        # Fetch the related ScopingForm using the project_name
+        scoping_form = ScopingForm.objects.filter(project_name=project_name).first()
+        if not scoping_form:
+            raise ValueError(f"No ScopingForm found for project_name: {project_name}")
+        
+        
         customer_name = scoping_form.customer_name if scoping_form else "Unknown Customer"
 
         # Fetch the "Sum" row from the CostCalculation table
         sum_row = CostCalculation.objects.filter(cost_category="Sum").first()
         
-        # If "Sum" row exists, use its values for y1 to y5; otherwise, default to zero
-        yearly_cost_summary = YearlyCostSummary(
-            customer_name=customer_name,
-            y1=getattr(sum_row, 'y1', Decimal('0.00')),
-            y2=getattr(sum_row, 'y2', Decimal('0.00')),
-            y3=getattr(sum_row, 'y3', Decimal('0.00')),
-            y4=getattr(sum_row, 'y4', Decimal('0.00')),
-            y5=getattr(sum_row, 'y5', Decimal('0.00'))
-        )
+        # Check if a YearlyCostSummary already exists for the given project_name
+        yearly_cost_summary = YearlyCostSummary.objects.filter(project_name=project_name).first()
 
-        # Save the new YearlyCostSummary entry
-        yearly_cost_summary.save()
-   
-#----------------------------------------ProjectResourceUtilisation-------------------------------------
+        if yearly_cost_summary:
+            # Update the existing record
+            yearly_cost_summary.customer_name = customer_name
+            yearly_cost_summary.y1 = getattr(sum_row, 'y1', Decimal('0.00'))
+            yearly_cost_summary.y2 = getattr(sum_row, 'y2', Decimal('0.00'))
+            yearly_cost_summary.y3 = getattr(sum_row, 'y3', Decimal('0.00'))
+            yearly_cost_summary.y4 = getattr(sum_row, 'y4', Decimal('0.00'))
+            yearly_cost_summary.y5 = getattr(sum_row, 'y5', Decimal('0.00'))
+            yearly_cost_summary.y6 = getattr(sum_row, 'y6', Decimal('0.00'))
+            yearly_cost_summary.y7 = getattr(sum_row, 'y7', Decimal('0.00'))
+            yearly_cost_summary.y8 = getattr(sum_row, 'y8', Decimal('0.00'))
+            yearly_cost_summary.y9 = getattr(sum_row, 'y9', Decimal('0.00'))
+            yearly_cost_summary.y10 = getattr(sum_row, 'y10', Decimal('0.00'))
+            yearly_cost_summary.save()  # Save the updated record
+        else:
+            # Create a new record
+            yearly_cost_summary = YearlyCostSummary(
+                project_name=project_name,
+                customer_name=customer_name,
+                y1=getattr(sum_row, 'y1', Decimal('0.00')),
+                y2=getattr(sum_row, 'y2', Decimal('0.00')),
+                y3=getattr(sum_row, 'y3', Decimal('0.00')),
+                y4=getattr(sum_row, 'y4', Decimal('0.00')),
+                y5=getattr(sum_row, 'y5', Decimal('0.00')),
+                y6=getattr(sum_row, 'y6', Decimal('0.00')),
+                y7=getattr(sum_row, 'y7', Decimal('0.00')),
+                y8=getattr(sum_row, 'y8', Decimal('0.00')),
+                y9=getattr(sum_row, 'y9', Decimal('0.00')),
+                y10=getattr(sum_row, 'y10', Decimal('0.00'))
+            )
+            yearly_cost_summary.save()  # Save the new record
+
+
+
 class ProjectResourceUtilisation(models.Model):
-    customer_name = models.CharField(max_length=255)  # Customer name from ScopingForm
-
+    customer_name = models.CharField(max_length=255)  
+    project_name = models.CharField(max_length=255 , default="Not available")
     # Define columns for each role level with exact names
     Linux_Engineer_F = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
     Linux_Engineer_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
@@ -633,10 +756,24 @@ class ProjectResourceUtilisation(models.Model):
   
     @classmethod
     def populate_utilisation(cls, scoping_form):
+        # project_name= scoping_form.project_name
+
+        # Get the current project name from thread-local storage
+        project_name = get_current_project_name()
+        if not project_name:
+            raise ValueError("Project name not found in thread-local storage.")
+
+        # Fetch the related ScopingForm using the project_name
+        scoping_form = ScopingForm.objects.filter(project_name=project_name).first()
+        if not scoping_form:
+            raise ValueError(f"No ScopingForm found for project_name: {project_name}")
+        
         customer_name = scoping_form.customer_name
         
         # Create or get the utilisation record for the customer
-        utilisation, created = cls.objects.get_or_create(customer_name=customer_name)
+        utilisation, created = cls.objects.get_or_create(project_name=project_name)
+        # Set the customer_name in the utilisation record
+        utilisation.customer_name = customer_name
 
         # Get all project costs
         project_costs = PrivatePublicCloudProjectCost.objects.all()
@@ -644,19 +781,23 @@ class ProjectResourceUtilisation(models.Model):
             role_level_column = project_cost.role_level.replace(" ", "_").replace("/", "_").replace("&", "and")
             
             # Debugging: Check if project_fte is correct
-            print(f"Role Level: {project_cost.role_level}, Project FTE: {project_cost.project_fte}")
+            # print(f"Role Level: {project_cost.role_level}, Project FTE: {project_cost.project_fte}")
             
             if hasattr(utilisation, role_level_column):
-                current_value = getattr(utilisation, role_level_column)
-                print(f"Current Value for {role_level_column}: {current_value}")
+                # current_value = getattr(utilisation, role_level_column)
                 
                 # Ensure we're working with Decimal values and add project_fte to the current value
-                new_value = current_value + project_cost.project_fte
-                print(f"Updated Value for {role_level_column}: {new_value}")
+                new_value = project_cost.project_fte
+                # new_value = current_value + project_cost.project_fte
                 
                 setattr(utilisation, role_level_column, new_value)
             else:
                 print(f"Column {role_level_column} not found on ProjectResourceUtilisation.")
+
+      
         
         # Save the updated or newly created record
         utilisation.save()
+
+
+

@@ -1,17 +1,48 @@
 from django.shortcuts import render, redirect ,get_object_or_404
 from django.http import JsonResponse
-from .models import CostCalculation, ScopingForm , CostSummary ,RateCard, Travel, PrivatePublicCloudProjectCost, Tool, On_Call, CostCalculation
+from .models import CostCalculation, ScopingForm , CostSummary ,RateCard, Travel, PrivatePublicCloudProjectCost, Tool, On_Call, CostCalculation ,YearlyCostSummary ,ProjectResourceUtilisation
 import openpyxl
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Border, Side
 from django.http import HttpResponse
+from datetime import datetime
+from decimal import Decimal
+from django.contrib.auth import authenticate, login ,logout
+from django.contrib import messages
+from django.views.decorators.cache import cache_control
 
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        # Authenticate the user
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            # Log in the user
+            login(request, user)
+            return redirect('home')  # Replace 'home' with the name of your home page URL
+        else:
+            messages.error(request, "Invalid username or password")
+    
+    return render(request, 'login.html')
+
+
+def logout_view(request):
+    logout(request)
+    return redirect ('login')
 
 def export_all_data(request):
     # Fetch the latest ScopingForm instance
     scoping_form = ScopingForm.objects.last()  # Change this logic as per your requirements
     customer_name = scoping_form.customer_name if scoping_form else "default"
+    project_name = scoping_form.project_name if scoping_form else "default"
+
+    # If customer name is missing, return an error response
+    if not project_name:
+        return JsonResponse({"status": "error", "message": "Export failed: project_name is missing."})
 
     # Create a new workbook
     workbook = openpyxl.Workbook()
@@ -77,8 +108,8 @@ def export_all_data(request):
     
 
     # Use customer_name in the filename, ensuring it's safe for a file name
-    sanitized_customer_name = "".join(c if c.isalnum() or c in (' ', '_') else "_" for c in customer_name).strip()
-    filename = f"{sanitized_customer_name}_data.xlsx"
+    sanitized_project_name = "".join(c if c.isalnum() or c in (' ', '_') else "_" for c in project_name).strip()
+    filename = f"{sanitized_project_name}_data.xlsx"
 
     # Save workbook to response
     response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -87,186 +118,152 @@ def export_all_data(request):
     return response
 
 
+def implement(request):
+    # Just render the home page with the buttons
+    return render(request, 'Implementation.html')
+
+def reports(request):
+    # Just render the home page with the buttons
+    return render(request, 'reports.html')
 
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def home(request):
+     # Ensure the browser doesn't cache this page
+    if not request.user.is_authenticated:
+        return redirect('login') 
+    # Just render the home page with the buttons
+    return render(request, 'home.html')
 
-# def scoping_form(request):
-#     if request.method == 'POST':
-#         # Retrieve form data from the POST request
-#         customer_name = request.POST.get('CustomerName')
-#         project_name = request.POST.get('ProjectName')
-#         description = request.POST.get('Description')
-#         location = request.POST.get('Location')
-#         received_date = request.POST.get('ReceivedDate')
-#         submission_date = request.POST.get('SubmissionDate')
-#         project_status = request.POST.get('ProjectStatus')
-#         margin = request.POST.get('Margin')
-#         penalty_risk = request.POST.get('PenaltyRisk')
-#         no_of_windows_vms = request.POST.get('WindowsVM')
-#         no_of_linux_vms = request.POST.get('LinuxVM')
-#         no_of_rdbms_dbs = request.POST.get('RDBMdB')
-#         no_of_nosql_dbs = request.POST.get('NOSQLdB')
-#         no_of_network_devices = request.POST.get('NetworkDevices')
-#         Total_VMs_Devices = request.POST.get('Total_VMs_Devices')
-#         total_storage_capacity = request.POST.get('StorageCapacity')
-#         on_call = request.POST.get('OnCall')
-#         support_window = request.POST.get('SupportWindow')
-#         yoy_increment = request.POST.get('YoYIncrement')
-#         no_of_ad_objects = request.POST.get('noOfAD')
-#         contract_duration = request.POST.get('ContractDuration')
-#         dc_type = request.POST.get('TypeOfDC')
-#         no_of_private_cloud_hosts = request.POST.get('PriavteCloudHosts')
-#         hyper_converged_platform_used = request.POST.get('ConvergedPlatform')
-#         dr_in_scope = request.POST.get('DRInScope')
-#         no_of_servers_for_dr = request.POST.get('ServersforDR')
-#         dr_drills = request.POST.get('DRdrills')
-#         complexity = request.POST.get('Complexity')
-#         monitoring = request.POST.get('Monitoring')
-#         patching = request.POST.get('Patching')
-#         itsm_services = request.POST.get('ITSMservices')
-#         ipc_management_in_scope = request.POST.get('IPCManagement')
-#         travel = request.POST.get('Travel')
-#         management_governance_support = request.POST.get('GovernanceSupport')
-#         tcv = request.POST.get('TCV')
+# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def modify_form(request):
+    if request.method == 'GET':
+        projects = ScopingForm.objects.all()
+        return render(request, 'modify_form.html', {'projects': projects})
+    
+    elif request.method == 'POST':
+        Project_Name = request.POST.get('ProjectName')
+        project = get_object_or_404(ScopingForm, project_name=Project_Name)
+        
+        # Update project with new values
+        project.customer_name = request.POST.get('CustomerName')
+        project.product_name = request.POST.get('ProductName')
+        project.description = request.POST.get('Description', "No description provided")
+        project.location = request.POST.get('Location', "Not specified")
 
-#         # Create a new ScopingForm instance and save it
-#         scoping_form_instance = ScopingForm(
-#             customer_name=customer_name,
-#             project_name=project_name,
-#             description=description,
-#             location=location,
-#             received_date=received_date,
-#             submission_date=submission_date,
-#             project_status=project_status,
-#             margin=margin,
-#             penalty_risk=penalty_risk,
-#             no_of_windows_vms=no_of_windows_vms,
-#             no_of_linux_vms=no_of_linux_vms,
-#             no_of_rdbms_dbs=no_of_rdbms_dbs,
-#             no_of_nosql_dbs=no_of_nosql_dbs,
-#             no_of_network_devices=no_of_network_devices,
-#             Total_VMs_Devices=Total_VMs_Devices,
-#             total_storage_capacity=total_storage_capacity,
-#             on_call=on_call,
-#             support_window=support_window,
-#             yoy_increment=yoy_increment,
-#             no_of_ad_objects=no_of_ad_objects,
-#             contract_duration=contract_duration,
-#             dc_type=dc_type,
-#             no_of_private_cloud_hosts=no_of_private_cloud_hosts,
-#             hyper_converged_platform_used=hyper_converged_platform_used,
-#             dr_in_scope=dr_in_scope,
-#             no_of_servers_for_dr=no_of_servers_for_dr,
-#             dr_drills=dr_drills,
-#             complexity=complexity,
-#             monitoring=monitoring,
-#             patching=patching,
-#             itsm_services=itsm_services,
-#             ipc_management_in_scope=ipc_management_in_scope,
-#             travel=travel,
-#             management_governance_support=management_governance_support,
-#             tcv=tcv
-#         )
-#         scoping_form_instance.save()
+        # Convert received_date and submission_date to datetime
+        received_date = request.POST.get('ReceivedDate')
+        if received_date:
+            project.received_date = datetime.strptime(received_date, '%Y-%m-%d')
 
-#         final_cost = CostCalculation.calculate_values()
+        submission_date = request.POST.get('SubmissionDate')
+        if submission_date:
+            project.submission_date = datetime.strptime(submission_date, '%Y-%m-%d')
+
+        project.project_status = request.POST.get('ProjectStatus')
+
+        # Convert margin and penalty_risk to Decimal
+        project.margin = Decimal(request.POST.get('Margin', 0))
+        project.penalty_risk = Decimal(request.POST.get('PenaltyRisk', 0))
+
+        # Convert numerical fields to integers
+        project.no_of_windows_vms = int(request.POST.get('WindowsVM', 0))
+        project.no_of_linux_vms = int(request.POST.get('LinuxVM', 0))
+        project.no_of_rdbms_dbs = int(request.POST.get('RDBMdB', 0))
+        project.no_of_nosql_dbs = int(request.POST.get('NOSQLdB', 0))
+        project.no_of_network_devices = int(request.POST.get('NetworkDevices', 0))
+        project.Total_VMs_Devices = int(request.POST.get('Total_VMs_Devices', 0))
+        project.no_of_ad_objects = int(request.POST.get('noOfAD', 0))
+        project.contract_duration = int(request.POST.get('ContractDuration', 0))
+        project.no_of_private_cloud_hosts = int(request.POST.get('PriavteCloudHosts', 0))
+        project.no_of_servers_for_dr = int(request.POST.get('ServersforDR', 0))
+        project.dr_drills = int(request.POST.get('DRdrills', 0))
+
+        # Convert total_storage_capacity and yoy_increment to Decimal
+        project.total_storage_capacity = Decimal(request.POST.get('StorageCapacity', 0))
+        project.yoy_increment = Decimal(request.POST.get('YoYIncrement', 0))
+
+        project.on_call = request.POST.get('OnCall')
+        project.support_window = request.POST.get('SupportWindow')
+        project.dc_type = request.POST.get('TypeOfDC')
+        project.hyper_converged_platform_used = request.POST.get('ConvergedPlatform')
+        project.dr_in_scope = request.POST.get('DRInScope')
+        project.complexity = request.POST.get('Complexity')
+        project.monitoring = request.POST.get('Monitoring')
+        project.patching = request.POST.get('Patching')
+        project.itsm_services = request.POST.get('ITSMservices')
+        project.ipc_management_in_scope = request.POST.get('IPCManagement')
+        project.travel = request.POST.get('Travel')
+        project.management_governance_support = request.POST.get('GovernanceSupport')
+
+        # Convert tcv to Decimal
+        project.tcv = Decimal(request.POST.get('TCV', 0))
+
+        project.save()
+
+        # Trigger calculation of final cost
+        final_cost = CostCalculation.calculate_values()
+
+        product_name_sf=request.POST.get('ProductName')
+        # Filter the corresponding CostSummary entry based on project name
+        cost_summary = CostSummary.objects.filter(project_name=Project_Name).first()
 
         
-#         cost_summary = CostSummary.objects.last()
+        return render(request, 'modify_form.html', {'final_cost': final_cost, 'cost_summary': cost_summary ,'projects': ScopingForm.objects.all(),'product_name':product_name_sf, 'message': 'Project updated successfully!'})
 
+def fetch_project_data(request):
+    # Get project_name from the query parameters
+    project_name = request.GET.get('project_name')  # Ensure consistency in parameter name
 
-#         return render(request, 'home.html', {'final_cost': final_cost ,'cost_summary': cost_summary})
+    # Retrieve the project using project_name
+    project = get_object_or_404(ScopingForm, project_name=project_name)
+    
+    # Prepare the data to send as JSON
+    data = {
+        'CustomerName': project.customer_name,
+        'product_name': project.product_name,
+        'Description': project.description,
+        'Location': project.location,
+        'ReceivedDate': project.received_date,
+        'SubmissionDate': project.submission_date,
+        'ProjectStatus': project.project_status,
+        'Margin': project.margin,
+        'PenaltyRisk': project.penalty_risk,
+        'WindowsVM': project.no_of_windows_vms,
+        'LinuxVM': project.no_of_linux_vms,
+        'RDBMdB': project.no_of_rdbms_dbs,
+        'NOSQLdB': project.no_of_nosql_dbs,
+        'NetworkDevices': project.no_of_network_devices,
+        'Total_VMs_Devices': project.Total_VMs_Devices,
+        'StorageCapacity': project.total_storage_capacity,
+        'OnCall': project.on_call,
+        'SupportWindow': project.support_window,
+        'YoYIncrement': project.yoy_increment,
+        'patching': project.patching,
+        'noOfAD': project.no_of_ad_objects,
+        'ContractDuration': project.contract_duration,
+        'TypeOfDC': project.dc_type,
+        'PriavteCloudHosts': project.no_of_private_cloud_hosts,
+        'ConvergedPlatform': project.hyper_converged_platform_used,
+        'dr_in_scope': project.dr_in_scope,
+        'no_of_servers_for_dr':project.no_of_servers_for_dr,
+        'dr_drills':project.dr_drills,
+        'complexity':project.complexity,
+        'monitoring':project.monitoring,
+        'patching':project.patching,
+        'itsm_services':project.itsm_services,
+        'ipc_management_in_scope':project.ipc_management_in_scope,
+        'travel':project.travel,
+        'management_governance_support':project.management_governance_support,
+        'tcv':project.tcv,
 
-   
-#     return render(request, 'home.html')
+    }
+    # print(f"Received project_name: {project_name}")
+    # print(f"Data sent: {data}")
+    # Return the data as a JSON response
+    return JsonResponse(data)
 
-
-
-#################3
-# def scoping_form(request):
-#     # Check if the form has been submitted (POST request)
-#     if request.method == 'POST':
-#         # If the form has already been submitted in the current session, skip the processing
-#         if request.session.get('form_submitted', False):
-#             # Render the page without saving the form again
-#             final_cost = None
-#             cost_summary = None
-#             return render(request, 'home.html', {'final_cost': final_cost, 'cost_summary': cost_summary})
-        
-#         # Retrieve form data from the POST request
-#         customer_name = request.POST.get('CustomerName')
-#         project_name = request.POST.get('ProjectName')
-
-#         # Check if the ScopingForm already exists to avoid duplicates
-#         existing_form = ScopingForm.objects.filter(customer_name=customer_name, project_name=project_name).first()
-
-#         if not existing_form:  # Only create a new instance if it doesn't exist
-#             scoping_form_instance = ScopingForm(
-#                 customer_name=customer_name,
-#                 project_name=project_name,
-#                 description=request.POST.get('Description'),
-#                 location=request.POST.get('Location'),
-#                 received_date=request.POST.get('ReceivedDate'),
-#                 submission_date=request.POST.get('SubmissionDate'),
-#                 project_status=request.POST.get('ProjectStatus'),
-#                 margin=request.POST.get('Margin'),
-#                 penalty_risk=request.POST.get('PenaltyRisk'),
-#                 no_of_windows_vms=request.POST.get('WindowsVM'),
-#                 no_of_linux_vms=request.POST.get('LinuxVM'),
-#                 no_of_rdbms_dbs=request.POST.get('RDBMdB'),
-#                 no_of_nosql_dbs=request.POST.get('NOSQLdB'),
-#                 no_of_network_devices=request.POST.get('NetworkDevices'),
-#                 Total_VMs_Devices=request.POST.get('Total_VMs_Devices'),
-#                 total_storage_capacity=request.POST.get('StorageCapacity'),
-#                 on_call=request.POST.get('OnCall'),
-#                 support_window=request.POST.get('SupportWindow'),
-#                 yoy_increment=request.POST.get('YoYIncrement'),
-#                 no_of_ad_objects=request.POST.get('noOfAD'),
-#                 contract_duration=request.POST.get('ContractDuration'),
-#                 dc_type=request.POST.get('TypeOfDC'),
-#                 no_of_private_cloud_hosts=request.POST.get('PriavteCloudHosts'),
-#                 hyper_converged_platform_used=request.POST.get('ConvergedPlatform'),
-#                 dr_in_scope=request.POST.get('DRInScope'),
-#                 no_of_servers_for_dr=request.POST.get('ServersforDR'),
-#                 dr_drills=request.POST.get('DRdrills'),
-#                 complexity=request.POST.get('Complexity'),
-#                 monitoring=request.POST.get('Monitoring'),
-#                 patching=request.POST.get('Patching'),
-#                 itsm_services=request.POST.get('ITSMservices'),
-#                 ipc_management_in_scope=request.POST.get('IPCManagement'),
-#                 travel=request.POST.get('Travel'),
-#                 management_governance_support=request.POST.get('GovernanceSupport'),
-#                 tcv=request.POST.get('TCV')
-#             )
-#             scoping_form_instance.save()
-
-#             # Mark the form as submitted in the session
-#             request.session['form_submitted'] = True
-
-#             # Trigger calculation of final cost
-#             final_cost = CostCalculation.calculate_values()
-
-#             # Get the last CostSummary entry
-#             cost_summary = CostSummary.objects.last()
-
-#             return render(request, 'home.html', {'final_cost': final_cost, 'cost_summary': cost_summary})
-
-#     else:
-#         # If GET request, reset session flag and cost summary
-#         if 'form_submitted' in request.session:
-#             # Clear the session flag to allow new submissions in future
-#             del request.session['form_submitted']
-
-#         final_cost = None
-#         cost_summary = None
-
-#         return render(request, 'home.html', {'final_cost': final_cost, 'cost_summary': cost_summary})
-
-
-
-
-#############3
-
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def scoping_form(request):
     # Check if the form has been submitted (POST request)
     if request.method == 'POST':
@@ -275,72 +272,88 @@ def scoping_form(request):
         project_name = request.POST.get('ProjectName')
 
         # Check if the ScopingForm already exists to avoid duplicates
-        existing_form = ScopingForm.objects.filter(customer_name=customer_name, project_name=project_name).first()
+        existing_form = ScopingForm.objects.filter(project_name=project_name).exists()
 
         if not existing_form:  # Only create a new instance if it doesn't exist
-            # Create the new ScopingForm instance
-            scoping_form_instance = ScopingForm(
-                customer_name=customer_name,
-                project_name=project_name,
-                description=request.POST.get('Description'),
-                location=request.POST.get('Location'),
-                received_date=request.POST.get('ReceivedDate'),
-                submission_date=request.POST.get('SubmissionDate'),
-                project_status=request.POST.get('ProjectStatus'),
-                margin=request.POST.get('Margin'),
-                penalty_risk=request.POST.get('PenaltyRisk'),
-                no_of_windows_vms=request.POST.get('WindowsVM'),
-                no_of_linux_vms=request.POST.get('LinuxVM'),
-                no_of_rdbms_dbs=request.POST.get('RDBMdB'),
-                no_of_nosql_dbs=request.POST.get('NOSQLdB'),
-                no_of_network_devices=request.POST.get('NetworkDevices'),
-                Total_VMs_Devices=request.POST.get('Total_VMs_Devices'),
-                total_storage_capacity=request.POST.get('StorageCapacity'),
-                on_call=request.POST.get('OnCall'),
-                support_window=request.POST.get('SupportWindow'),
-                yoy_increment=request.POST.get('YoYIncrement'),
-                no_of_ad_objects=request.POST.get('noOfAD'),
-                contract_duration=request.POST.get('ContractDuration'),
-                dc_type=request.POST.get('TypeOfDC'),
-                no_of_private_cloud_hosts=request.POST.get('PriavteCloudHosts'),
-                hyper_converged_platform_used=request.POST.get('ConvergedPlatform'),
-                dr_in_scope=request.POST.get('DRInScope'),
-                no_of_servers_for_dr=request.POST.get('ServersforDR'),
-                dr_drills=request.POST.get('DRdrills'),
-                complexity=request.POST.get('Complexity'),
-                monitoring=request.POST.get('Monitoring'),
-                patching=request.POST.get('Patching'),
-                itsm_services=request.POST.get('ITSMservices'),
-                ipc_management_in_scope=request.POST.get('IPCManagement'),
-                travel=request.POST.get('Travel'),
-                management_governance_support=request.POST.get('GovernanceSupport'),
-                tcv=request.POST.get('TCV')
-            )
-            scoping_form_instance.save()
+            try:
+                # Create the new ScopingForm instance
+                scoping_form_instance = ScopingForm(
+                    customer_name=customer_name,
+                    project_name=project_name,
+                    description=request.POST.get('Description'),
+                    product_name=request.POST.get('ProductName'),
+                    location=request.POST.get('Location'),
+                    received_date=request.POST.get('ReceivedDate'),
+                    submission_date=request.POST.get('SubmissionDate'),
+                    project_status=request.POST.get('ProjectStatus'),
+                    margin=request.POST.get('Margin'),
+                    penalty_risk=request.POST.get('PenaltyRisk'),
+                    no_of_windows_vms=request.POST.get('WindowsVM'),
+                    no_of_linux_vms=request.POST.get('LinuxVM'),
+                    no_of_rdbms_dbs=request.POST.get('RDBMdB'),
+                    no_of_nosql_dbs=request.POST.get('NOSQLdB'),
+                    no_of_network_devices=request.POST.get('NetworkDevices'),
+                    Total_VMs_Devices=request.POST.get('Total_VMs_Devices'),
+                    total_storage_capacity=request.POST.get('StorageCapacity'),
+                    on_call=request.POST.get('OnCall'),
+                    support_window=request.POST.get('SupportWindow'),
+                    yoy_increment=request.POST.get('YoYIncrement'),
+                    no_of_ad_objects=request.POST.get('noOfAD'),
+                    contract_duration=request.POST.get('ContractDuration'),
+                    dc_type=request.POST.get('TypeOfDC'),
+                    no_of_private_cloud_hosts=request.POST.get('PriavteCloudHosts'),
+                    hyper_converged_platform_used=request.POST.get('ConvergedPlatform'),
+                    dr_in_scope=request.POST.get('DRInScope'),
+                    no_of_servers_for_dr=request.POST.get('ServersforDR'),
+                    dr_drills=request.POST.get('DRdrills'),
+                    complexity=request.POST.get('Complexity'),
+                    monitoring=request.POST.get('Monitoring'),
+                    patching=request.POST.get('Patching'),
+                    itsm_services=request.POST.get('ITSMservices'),
+                    ipc_management_in_scope=request.POST.get('IPCManagement'),
+                    travel=request.POST.get('Travel'),
+                    management_governance_support=request.POST.get('GovernanceSupport'),
+                    tcv=request.POST.get('TCV'),
+                )
+                scoping_form_instance.save()
 
-            # Mark the form as submitted in the session
-            request.session['form_submitted'] = True
+                # Trigger calculation of final cost
+                final_cost = CostCalculation.calculate_values()
 
-            # Trigger calculation of final cost
-            final_cost = CostCalculation.calculate_values()
+                # Get the last CostSummary entry
+                cost_summary = CostSummary.objects.last()
 
-            # Get the last CostSummary entry
-            cost_summary = CostSummary.objects.last()
+                # Redirect to the same page or another page (e.g., success page)
+                return render(request, 'form.html', {'final_cost': final_cost, 'cost_summary': cost_summary})
 
-            return render(request, 'home.html', {'final_cost': final_cost, 'cost_summary': cost_summary})
+            except Exception as e:
+                # Handle unexpected errors during form save
+                return render(request, 'form.html', {'error': f"An error occurred: {str(e)}"})
 
         else:
-            # If the form already exists, you can either notify the user or redirect them
-            return render(request, 'home.html', {'error': 'This project and customer already exist in the database.'})
+            
+            # If the form already exists, notify the user
+            error_message = f"A project with the name '{project_name}' already exists in the database. Please use a different name."
+            print(error_message)
+            return render(request, 'form.html', {
+                'error_message': error_message,
+            })
 
     else:
-        # If GET request (i.e., the user is loading the page or refreshing):
-        # Reset session flag to allow future submissions
-        if 'form_submitted' in request.session:
-            del request.session['form_submitted']
 
         # Reset final_cost and cost_summary to None on initial load or page reload
         final_cost = None
         cost_summary = None
 
-        return render(request, 'home.html', {'final_cost': final_cost, 'cost_summary': cost_summary})
+        return render(request, 'form.html', {
+            'final_cost': final_cost,
+            'cost_summary': cost_summary,
+            
+        })
+
+
+
+
+
+
+

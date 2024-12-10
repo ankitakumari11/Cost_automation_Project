@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+    
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+              <h2 class="card-title">Welcome to Cost automation</h2>
+              {% comment %} <small class="card-subtitle">Enter your credentials to login</small> {% endcomment %}
+              <form class="card-form" method="POST">
+                {% csrf_token %}
+                  <label for="username">Username</label>
+                  <div class="card-input-container username">
+                      <input type="text" placeholder="Enter your username" id="username" name="username" required>
+                  </div>
+                  <label for="password">Password</label>
+                  <div class="card-input-container password">
+                      <input type="password" placeholder="Enter your password" id="password" name="password" required>
+                      
+                  </div>
+                  <button type="submit" class="card-button">Sign In</button>
+                  <small class="card-forgot-password">Forgot your passwrod ? <a href="{% url 'password_reset' %}">Reset Password</a></small>
+              </form>
+          </div>
+      </div>
+
+      {% if messages %}
+    <script>
+        window.onload = function() {
+            {% for message in messages %}
+                alert("{{ message|escapejs }}");
+            {% endfor %}
+        };
+    </script>
+{% endif %}
+
+
+   
+</body>
+</html>
