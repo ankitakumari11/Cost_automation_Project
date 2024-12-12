@@ -32,6 +32,7 @@ urlpatterns = [
     path('fetch_project_data/', views.fetch_project_data, name='fetch_project_data'),
     path('implementation/', views.implement, name='implement'),
     path('reports/', views.reports, name='reports'),
+     path('export_table/', views.export_report_table, name='export_table'),
 
     # path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('logout/', views.logout_view, name='logout'),

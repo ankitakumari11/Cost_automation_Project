@@ -9,6 +9,7 @@ from .utils import get_current_project_name
 #ScopingForm----------------------------------------------------------------------
 class ScopingForm(models.Model):
     # Basic Information
+    SA_name = models.CharField(max_length=255, default="Not Assigned")
     customer_name = models.CharField(max_length=255)
     project_name = models.CharField(max_length=255 ,unique=True)
     PRODUCT_NAME_CHOICES = [
@@ -20,7 +21,7 @@ class ScopingForm(models.Model):
         ('Exisiting_Cloud_Nxtra', 'Exisiting_Cloud_Nxtra'),
         ('MS_Licence_Nxtra', 'MS_Licence_Nxtra'),
     ]
-    product_name = models.CharField(max_length=30, choices=PRODUCT_NAME_CHOICES ,default="No product_name provided")
+    product_name = models.CharField(max_length=50, choices=PRODUCT_NAME_CHOICES ,default="No product_name provided")
 
 
     description = models.TextField(max_length=600, blank=True, null=True ,default="No description provided")
@@ -548,6 +549,8 @@ class CostCalculation(models.Model):
 
 class CostSummary(models.Model):
     project_name = models.CharField(max_length=255 , default="Not available")
+    SA_name = models.CharField(max_length=255, default="Not Assigned")
+    product_name = models.CharField(max_length=50 ,default="No product_name provided")
     customer_name = models.CharField(max_length=255)
     project_status = models.CharField(max_length=50)
     contract_duration = models.IntegerField()
@@ -606,6 +609,8 @@ class CostSummary(models.Model):
 
         # Now use the ScopingForm data to fill in fields for customer_name, project_status, contract_duration
         customer_name = scoping_form.customer_name
+        SA_name = scoping_form.SA_name
+        product_name = scoping_form.product_name
         project_status = scoping_form.project_status
         contract_duration = scoping_form.contract_duration
 
@@ -615,6 +620,8 @@ class CostSummary(models.Model):
         if cost_summary:
             # Update the existing record
             cost_summary.customer_name = customer_name
+            cost_summary.SA_name = SA_name
+            cost_summary.product_name = product_name
             cost_summary.project_status = project_status
             cost_summary.contract_duration = contract_duration
             cost_summary.resource_cost = resource_cost
@@ -628,6 +635,8 @@ class CostSummary(models.Model):
             # Create a new record
             cost_summary = CostSummary(
                 project_name=project_name,
+                SA_name = SA_name,
+                product_name = product_name,
                 customer_name=customer_name,
                 project_status=project_status,
                 contract_duration=contract_duration,
@@ -642,7 +651,8 @@ class CostSummary(models.Model):
 
 class YearlyCostSummary(models.Model):
     project_name = models.CharField(max_length=255 , default="Not available")
-
+    SA_name = models.CharField(max_length=255, default="Not Assigned")
+    product_name = models.CharField(max_length=50 ,default="No product_name provided")
     customer_name = models.CharField(max_length=255)
     y1 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     y2 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
@@ -675,6 +685,8 @@ class YearlyCostSummary(models.Model):
         
         
         customer_name = scoping_form.customer_name if scoping_form else "Unknown Customer"
+        SA_name = scoping_form.SA_name
+        product_name = scoping_form.product_name
 
         # Fetch the "Sum" row from the CostCalculation table
         sum_row = CostCalculation.objects.filter(cost_category="Sum").first()
@@ -685,6 +697,8 @@ class YearlyCostSummary(models.Model):
         if yearly_cost_summary:
             # Update the existing record
             yearly_cost_summary.customer_name = customer_name
+            yearly_cost_summary.SA_name = SA_name
+            yearly_cost_summary.product_name = product_name
             yearly_cost_summary.y1 = getattr(sum_row, 'y1', Decimal('0.00'))
             yearly_cost_summary.y2 = getattr(sum_row, 'y2', Decimal('0.00'))
             yearly_cost_summary.y3 = getattr(sum_row, 'y3', Decimal('0.00'))
@@ -700,6 +714,8 @@ class YearlyCostSummary(models.Model):
             # Create a new record
             yearly_cost_summary = YearlyCostSummary(
                 project_name=project_name,
+                SA_name = SA_name,
+                product_name = product_name,
                 customer_name=customer_name,
                 y1=getattr(sum_row, 'y1', Decimal('0.00')),
                 y2=getattr(sum_row, 'y2', Decimal('0.00')),
@@ -719,6 +735,8 @@ class YearlyCostSummary(models.Model):
 class ProjectResourceUtilisation(models.Model):
     customer_name = models.CharField(max_length=255)  
     project_name = models.CharField(max_length=255 , default="Not available")
+    SA_name = models.CharField(max_length=255, default="Not Assigned")
+    product_name = models.CharField(max_length=50 ,default="No product_name provided")
     # Define columns for each role level with exact names
     Linux_Engineer_F = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
     Linux_Engineer_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
@@ -769,11 +787,15 @@ class ProjectResourceUtilisation(models.Model):
             raise ValueError(f"No ScopingForm found for project_name: {project_name}")
         
         customer_name = scoping_form.customer_name
+        SA_name = scoping_form.SA_name
+        product_name = scoping_form.product_name
         
         # Create or get the utilisation record for the customer
         utilisation, created = cls.objects.get_or_create(project_name=project_name)
         # Set the customer_name in the utilisation record
         utilisation.customer_name = customer_name
+        utilisation.SA_name = SA_name
+        utilisation.product_name = product_name
 
         # Get all project costs
         project_costs = PrivatePublicCloudProjectCost.objects.all()

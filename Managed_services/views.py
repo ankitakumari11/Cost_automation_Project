@@ -10,7 +10,10 @@ from decimal import Decimal
 from django.contrib.auth import authenticate, login ,logout
 from django.contrib import messages
 from django.views.decorators.cache import cache_control
-
+from django.db import connection
+from django.apps import apps
+from django.contrib.admin.sites import site
+import csv
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def login_view(request):
@@ -122,9 +125,85 @@ def implement(request):
     # Just render the home page with the buttons
     return render(request, 'Implementation.html')
 
+
+
+def export_report_table(request):
+    table_id = request.GET.get('table_id')
+    if not table_id:
+        return HttpResponse("No table selected for export.", status=400)
+
+    table_mapping = {
+        "costSummary": "Managed_services_costsummary",
+        "projectResourceUtilisation": "Managed_services_projectresourceutilisation",
+        "scopingForms": "Managed_services_scopingform",
+        "yearlyCostSummary": "Managed_services_yearlycostsummary",
+    }
+
+    table_name = table_mapping.get(table_id)
+    if not table_name:
+        return HttpResponse("Invalid table selected.", status=400)
+
+    # Query data from the database
+    with connection.cursor() as cursor:
+        cursor.execute(f"SELECT * FROM {table_name}")
+        columns = [col[0] for col in cursor.description]
+        rows = cursor.fetchall()
+
+    # Create the response
+    response = HttpResponse(content_type="text/csv")
+    response['Content-Disposition'] = f'attachment; filename="{table_id}.csv"'
+
+    # Write data to CSV
+    writer = csv.writer(response)
+    writer.writerow(columns)  # Write header
+    writer.writerows(rows)    # Write data rows
+
+    return response
+
+def get_column_order(model_name):
+    """Fetch column order based on `list_display` in admin.py."""
+    model = apps.get_model("Managed_services", model_name)  # Replace with your app name
+    admin_class = site._registry.get(model)  # Retrieve the admin class for the model
+    if admin_class and hasattr(admin_class, "list_display"):
+        return admin_class.list_display  # This returns the column order
+    return None
+
 def reports(request):
-    # Just render the home page with the buttons
-    return render(request, 'reports.html')
+    def fetch_data(query, model_name=None):
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            columns = [col[0] for col in cursor.description]
+            rows = cursor.fetchall()
+
+        # Get column order dynamically from `admin.py`
+        if model_name:
+            column_order = get_column_order(model_name)
+            if column_order:
+                column_mapping = {col: idx for idx, col in enumerate(columns)}
+                reordered_columns = [col for col in column_order if col in columns]
+                reordered_rows = [
+                    [row[column_mapping[col]] for col in reordered_columns]
+                    for row in rows
+                ]
+                return {"columns": reordered_columns, "rows": reordered_rows}
+
+        return {"columns": columns, "rows": rows}
+
+    cost_summary = fetch_data("SELECT * FROM Managed_services_costsummary", "CostSummary")
+    project_resource_utilisation = fetch_data(
+    "SELECT * FROM Managed_services_projectresourceutilisation", "ProjectResourceUtilisation"
+)
+    scoping_forms = fetch_data("SELECT * FROM Managed_services_scopingform", "ScopingForm")
+    yearly_cost_summary = fetch_data(
+    "SELECT * FROM Managed_services_yearlycostsummary", "YearlyCostSummary"
+)
+
+    return render(request, "report.html", {
+        "cost_summary": cost_summary,
+        "project_resource_utilisation": project_resource_utilisation,
+        "scoping_forms": scoping_forms,
+        "yearly_cost_summary": yearly_cost_summary,
+    })
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -146,6 +225,7 @@ def modify_form(request):
         project = get_object_or_404(ScopingForm, project_name=Project_Name)
         
         # Update project with new values
+        project.SA_name=request.user.username
         project.customer_name = request.POST.get('CustomerName')
         project.product_name = request.POST.get('ProductName')
         project.description = request.POST.get('Description', "No description provided")
@@ -220,6 +300,7 @@ def fetch_project_data(request):
     
     # Prepare the data to send as JSON
     data = {
+        # 'SA_name':project.SA_name,
         'CustomerName': project.customer_name,
         'product_name': project.product_name,
         'Description': project.description,
@@ -278,6 +359,8 @@ def scoping_form(request):
             try:
                 # Create the new ScopingForm instance
                 scoping_form_instance = ScopingForm(
+                    # Save the logged-in user's username
+                    SA_name=request.user.username,
                     customer_name=customer_name,
                     project_name=project_name,
                     description=request.POST.get('Description'),
@@ -314,6 +397,7 @@ def scoping_form(request):
                     travel=request.POST.get('Travel'),
                     management_governance_support=request.POST.get('GovernanceSupport'),
                     tcv=request.POST.get('TCV'),
+                    
                 )
                 scoping_form_instance.save()
 

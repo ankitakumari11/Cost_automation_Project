@@ -33,7 +33,7 @@ def export_to_excel(modeladmin, request, queryset):
 
 # Define a custom admin class to customize how the model is displayed
 class ScopingFormAdmin(admin.ModelAdmin):
-    list_display = ('project_name','product_name','customer_name','location','received_date','submission_date', 'project_status', 'margin', 'penalty_risk',
+    list_display = ('project_name','SA_name','product_name','customer_name','location','received_date','submission_date', 'project_status', 'margin', 'penalty_risk',
         'no_of_windows_vms', 'no_of_linux_vms', 'no_of_rdbms_dbs', 'no_of_nosql_dbs',
         'no_of_network_devices','Total_VMs_Devices', 'total_storage_capacity', 'on_call', 
         'support_window', 'yoy_increment', 'no_of_ad_objects',
@@ -74,7 +74,7 @@ admin.site.register(PrivatePublicCloudProjectCost, PrivatePublicCloudProjectCost
 
 @admin.register(ProjectResourceUtilisation)
 class ProjectResourceUtilisationAdmin(admin.ModelAdmin):
-    list_display = ('project_name','customer_name', 
+    list_display = ('project_name','SA_name','customer_name','product_name', 
                     'Linux_Engineer_F', 'Linux_Engineer_E2', 'Linux_Engineer_E3', 
                     'Windows_Engineer_F', 'Windows_Engineer_E2', 'Windows_Engineer_E3', 
                     'Cloud_Engineer_OCI_Cloud_F', 'Cloud_Engineer_OCI_Cloud_E2', 'Cloud_Engineer_OCI_Cloud_E3', 
@@ -107,11 +107,11 @@ class CostCalculationAdmin(admin.ModelAdmin):
 
 @admin.register(CostSummary)
 class CostSummaryAdmin(admin.ModelAdmin):
-    list_display = ('project_name','customer_name','project_status','contract_duration', 'resource_cost', 'tools' ,'oncall','travel' , 'penalty_risk' , 'total')
+    list_display = ('project_name','SA_name','customer_name','product_name','project_status','contract_duration', 'resource_cost', 'tools' ,'oncall','travel' , 'penalty_risk' , 'total')
     actions = [export_to_excel]  # Add the export action
 
 
 @admin.register(YearlyCostSummary)
 class YearlyCostSummaryAdmin(admin.ModelAdmin):
-    list_display = ('project_name','customer_name','y1','y2', 'y3', 'y4' ,'y5','y6','y7','y8','y9','y10') 
+    list_display = ('project_name','SA_name','customer_name','product_name','y1','y2', 'y3', 'y4' ,'y5','y6','y7','y8','y9','y10') 
     actions = [export_to_excel]  # Add the export action

@@ -17,7 +17,7 @@
           <a href="#"><img src="{% static 'img/logo.png' %}" width="55" height="30"></a>
            <div class="navbar-centered">
             <a href="#home">Managed Services Cost Analysis</a>
-            <button class="btn btn-new" onclick="window.location.href='{% url 'logout' %}'">Logout</button>
+            {% comment %} <button class="btn btn-new" onclick="window.location.href='{% url 'logout' %}'">Logout</button> {% endcomment %}
           </div>
         </div>
     <div class="split-container">
@@ -574,9 +574,8 @@
         // Check if customer name is missing or invalid
         if (!project_nameName || project_nameName === "0") {
             // Show alert message
-            const alertDiv = document.getElementById("alert-message");
-            alertDiv.textContent = "No data to be exported";
-            alertDiv.style.display = "block";
+            
+            alert("No data to be exported")
         } else {
             // Redirect to the export URL if customer name is valid
             window.location.href = "{% url 'export_all_data' %}";
@@ -585,24 +584,7 @@
 
 
      
-             document.getElementById("export-data-btn").addEventListener("click", function (e) {
-          e.preventDefault();
-   
-          // Get the customer name text
-          const project_nameText = document.getElementById("projectName").textContent.trim();
-          const project_nameName = project_nameText.replace("Project Name: ", "").trim(); // Extract the actual name
-   
-          // Check if customer name is missing or invalid
-          if (!project_nameName || project_nameName === "0") {
-              // Show alert message
-              const alertDiv = document.getElementById("alert-message");
-              alertDiv.textContent = "No data to be exported";
-              alertDiv.style.display = "block";
-          } else {
-              // Redirect to the export URL if customer name is valid
-              window.location.href = "{% url 'export_all_data' %}";
-          }
-      });
+
 
 
       window.onload = function() {

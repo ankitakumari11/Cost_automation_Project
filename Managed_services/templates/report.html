@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Page</title>
+    <style>
+        .table-section {
+            display: none; /* Initially hide all sections */
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        let TableId = ""; // Track which table is displayed
+        function showTable(tableId) {
+            TableId=tableId
+            // Hide all table sections
+            document.querySelectorAll('.table-section').forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Show the selected table
+            document.getElementById(tableId).style.display = 'block';
+        }
+
+
+        function exportTable() {
+            if (!TableId) {
+                alert("No table is selected. Please select a table first.");
+                return;
+            }
+
+            // Redirect to the export URL with the selected table ID
+            window.location.href = `/export_table/?table_id=${TableId}`;
+        }
+    </script>
+</head>
+<body>
+    <h1>Reports</h1>
+    
+
+    <!-- Buttons to toggle between tables -->
+    <button onclick="showTable('costSummary')">Cost Summary</button>
+    <button onclick="showTable('projectResourceUtilisation')">Project Resource Utilisation</button>
+    <button onclick="showTable('scopingForms')">Scoping Forms</button>
+    <button onclick="showTable('yearlyCostSummary')">Yearly Cost Summary</button>
+
+    <!-- Export button -->
+    <button onclick="exportTable()">Export Table</button>
+    
+
+    <!-- Sections for each table -->
+    <div id="costSummary" class="table-section">
+        <h2>Cost Summary</h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    {% for column in cost_summary.columns %}
+                    <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in cost_summary.rows %}
+                <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="projectResourceUtilisation" class="table-section">
+        <h2>Project Resource Utilisation</h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    {% for column in project_resource_utilisation.columns %}
+                    <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in project_resource_utilisation.rows %}
+                <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="scopingForms" class="table-section">
+        <h2>Scoping Forms</h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    {% for column in scoping_forms.columns %}
+                    <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in scoping_forms.rows %}
+                <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="yearlyCostSummary" class="table-section">
+        <h2>Yearly Cost Summary</h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    {% for column in yearly_cost_summary.columns %}
+                    <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in yearly_cost_summary.rows %}
+                <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -24,7 +24,7 @@
             
             <a href="#home">Managed Services Cost Analysis</a>
           </div>
-          <button class="btn btn-new" onclick="window.location.href='{% url 'logout' %}'">Logout</button>
+          {% comment %} <button class="btn btn-new" onclick="window.location.href='{% url 'logout' %}'">Logout</button> {% endcomment %}
         </div>
         
     <div class="split-container">
@@ -32,9 +32,9 @@
         <div class="split-left">
             <div class="title">Scoping Form</div><br>
             {% if error_message %}
-            {% comment %} <div style="color: red; font-weight: bold;">
-                {{ error_message }} {% endcomment %}
-                alert({error_message})
+             <div style="color: red; font-weight: bold;">
+                {{ error_message }} 
+                
             </div>
             {% endif %}
             <button class="btn btn-new" onclick="window.location.href='{% url 'modify_form' %}'">Modify Existing form</button>
@@ -457,10 +457,7 @@
    
           // Check if customer name is missing or invalid
           if (!project_nameName || project_nameName === "0") {
-              // Show alert message
-              const alertDiv = document.getElementById("alert-message");
-              alertDiv.textContent = "No data to be exported";
-              alertDiv.style.display = "block";
+            alert("No data to be exported")
           } else {
               // Redirect to the export URL if customer name is valid
               window.location.href = "{% url 'export_all_data' %}";

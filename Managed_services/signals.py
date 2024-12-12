@@ -11,22 +11,22 @@ def update_project_costs(sender, instance, created, **kwargs):
     set_current_project_name(instance.project_name)
 
 
-    if created:
-        # Handle logic for a newly created ScopingForm if needed
-        print("New project created:", scoping_form.project_name)
-        print("New customer_name created:", scoping_form.customer_name)
+    # if created:
+    #     # Handle logic for a newly created ScopingForm if needed
+    #     print("New project created:", scoping_form.project_name)
+    #     print("New customer_name created:", scoping_form.customer_name)
 
-    else:
-        # This is an update to an existing ScopingForm, so we can use the updated data
-        print("Updated project:", scoping_form.project_name)
-        print("Updated customer_name:", scoping_form.customer_name)
+    # else:
+    #     # This is an update to an existing ScopingForm, so we can use the updated data
+    #     print("Updated project:", scoping_form.project_name)
+    #     print("Updated customer_name:", scoping_form.customer_name)
 
     # Print all values of the scoping_form
     print("\nAll fields of the updated ScopingForm:")
     for field in scoping_form._meta.fields:
         field_name = field.name
         field_value = getattr(scoping_form, field_name, 'N/A')  # Fetch the value of each field
-        print(f"{field_name}: {field_value}")
+        
 
     
     # Get all existing records in PrivateCloudProjectCost
