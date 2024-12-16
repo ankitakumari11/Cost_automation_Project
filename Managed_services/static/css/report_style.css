@@ -1,0 +1,158 @@
+body {
+    margin: 20px;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    height: 100vh;
+    background: url('/static/img/backgroup_image.png');
+    background-size: cover;
+  }
+
+
+.split-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 35px;
+}
+
+.split-left,
+.split-right {
+    
+    overflow: auto;
+    text-align: auto;
+    transition: all 0.3s;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    margin: 5px;
+    padding: 10px;
+    
+}
+
+.split-left {
+  flex: 1;
+    color: #ffffff;
+    border: 1px solid grey;
+    
+    
+}
+
+.split-right {
+  flex: 4;
+    color: #333333;
+    border: 1px solid grey;
+  
+}
+
+@media (max-width: 768px) {
+    .split-container {
+        flex-direction: column;
+    }
+
+    .split-left,
+    .split-right {
+        margin: 5px;
+        width: 95%;
+        height: 48vh;
+    }
+}
+
+
+.custom-button {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    border: none; /* Remove borders */
+    padding: 10px 20px; /* Add some padding */
+    text-align: center; /* Center the text */
+    text-decoration: none; /* Remove underline */
+    display: inline-block; /* Keep inline, but allow padding */
+    font-size: 16px; /* Adjust font size */
+    margin: 10px 5px; /* Add some space between buttons */
+    border-radius: 8px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.custom-button:hover {
+    background-color: #45a049; /* Darker green on hover */
+    transform: scale(1.05);
+}
+
+
+/* Table section container */
+.table-section {
+    display: none;
+    max-height: 700px; /* Set a fixed height for the scrollable area */
+    max-width: 100%; /* Set a fixed width for the scrollable area */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    position: relative; /* For sticky positioning to work properly */
+    margin-bottom: 20px; /* Optional: Space at the bottom of the section */
+  }
+  
+  /* Sticky header styling */
+  .sticky-header {
+    position: sticky; /* Enable sticky positioning */
+    left: 0; /* Make the header stick to the left side */
+    z-index: 10; /* Keep header above the table rows */
+    padding: 10px;
+    font-weight: bold;
+    font-size: 1.5em;
+  }
+
+
+.table-section table {
+    width: 100%; /* Ensure the table stretches to full width */
+    border-collapse: collapse; /* Collapse borders */
+}
+
+.table-section th, 
+.table-section td {
+    text-align: left;
+    padding: 12px 15px;
+    border: 1px solid #ddd; /* Cell borders */
+    font-size: 14px; /* Adjust font size */
+}
+
+.table-section th {
+    background-color: #4CAF50; /* Green background for header */
+    color: white; /* White text */
+    font-weight: bold; /* Bold font */
+    text-transform: uppercase; /* Uppercase headers */
+}
+
+.table-section tr:nth-child(even) {
+    background-color: #f9f9f9; /* Light gray for even rows */
+}
+
+.table-section tr:hover {
+    background-color: #f1f1f1; /* Slightly darker gray on hover */
+    cursor: pointer; /* Pointer cursor */
+}
+
+
+.navbar {
+overflow: hidden;
+background-color: #454242;
+position: fixed;
+top: 0;
+width: 100%;
+}
+
+.navbar a {
+float: left;
+display: block;
+color: #f9f7f7;
+text-align: center;
+padding: 8px 10px;
+text-decoration: none;
+font-size: 20px;
+}
+
+.navbar-centered a {
+float: none;
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+}

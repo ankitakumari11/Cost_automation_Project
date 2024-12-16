@@ -1,14 +1,14 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report Page</title>
-    <style>
-        .table-section {
-            display: none; /* Initially hide all sections */
-            margin-top: 20px;
-        }
+    <meta name="viewport" 
+          content="width=device-width, initial-scale=1.0">
+    <title>Cost Automation</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/report_style.css' %}">
+ <style>
+        
     </style>
     <script>
         let TableId = ""; // Track which table is displayed
@@ -18,40 +18,49 @@
             document.querySelectorAll('.table-section').forEach(section => {
                 section.style.display = 'none';
             });
-
             // Show the selected table
             document.getElementById(tableId).style.display = 'block';
         }
-
 
         function exportTable() {
             if (!TableId) {
                 alert("No table is selected. Please select a table first.");
                 return;
             }
-
             // Redirect to the export URL with the selected table ID
             window.location.href = `/export_table/?table_id=${TableId}`;
         }
     </script>
 </head>
 <body>
-    <h1>Reports</h1>
+</div>
+    <div class="navbar">
+        {% load static %}
+          <a href="#"><img src="{% static 'img/logo.png' %}" width="55" height="30"></a>
+           <div class="navbar-centered">
+            
+            <a href="#home">Reports</a>
+          </div>
+          {% comment %} <button class="btn btn-new" onclick="window.location.href='{% url 'logout' %}'">Logout</button> {% endcomment %}
+        </div>
+        
+    <div class="split-container">
+      
+        <div class="split-left">
+            <button class="custom-button" onclick="showTable('costSummary')">Cost Summary</button>
+<button class="custom-button" onclick="showTable('projectResourceUtilisation')">Project Resource Utilisation</button>
+{% comment %} <button class="custom-button" onclick="showTable('scopingForms')">Scoping Forms</button> {% endcomment %}
+<button class="custom-button" onclick="showTable('yearlyCostSummary')">Yearly Cost Summary</button>
+     <!-- Export button -->
+    <button class="custom-button" onclick="exportTable()">Export Table</button>      
+                
+            </div>
     
-
-    <!-- Buttons to toggle between tables -->
-    <button onclick="showTable('costSummary')">Cost Summary</button>
-    <button onclick="showTable('projectResourceUtilisation')">Project Resource Utilisation</button>
-    <button onclick="showTable('scopingForms')">Scoping Forms</button>
-    <button onclick="showTable('yearlyCostSummary')">Yearly Cost Summary</button>
-
-    <!-- Export button -->
-    <button onclick="exportTable()">Export Table</button>
-    
-
-    <!-- Sections for each table -->
+        <div class="split-right">
+     
+           <!-- Sections for each table -->
     <div id="costSummary" class="table-section">
-        <h2>Cost Summary</h2>
+        <h2 class="sticky-header">Cost Summary</h2>
         <table border="1">
             <thead>
                 <tr>
@@ -71,9 +80,8 @@
             </tbody>
         </table>
     </div>
-
     <div id="projectResourceUtilisation" class="table-section">
-        <h2>Project Resource Utilisation</h2>
+        <h2 class="sticky-header">Project Resource Utilisation</h2>
         <table border="1">
             <thead>
                 <tr>
@@ -93,9 +101,8 @@
             </tbody>
         </table>
     </div>
-
-    <div id="scopingForms" class="table-section">
-        <h2>Scoping Forms</h2>
+    {% comment %} <div id="scopingForms" class="table-section">
+        <h2 class="sticky-header">Scoping Forms</h2>
         <table border="1">
             <thead>
                 <tr>
@@ -114,10 +121,9 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-
+    </div> {% endcomment %}
     <div id="yearlyCostSummary" class="table-section">
-        <h2>Yearly Cost Summary</h2>
+        <h2 class="sticky-header">Yearly Cost Summary</h2>
         <table border="1">
             <thead>
                 <tr>
@@ -137,5 +143,11 @@
             </tbody>
         </table>
     </div>
+   
+        </div>
+    </div>
+
+    
 </body>
 </html>
+ 

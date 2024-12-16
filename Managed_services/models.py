@@ -40,7 +40,7 @@ class ScopingForm(models.Model):
         ('Submitted', 'Submitted'),
         ('Won', 'Won'),
     ]
-    project_status = models.CharField(max_length=10, choices=PROJECT_STATUS_CHOICES)
+    project_status = models.CharField(max_length=50, choices=PROJECT_STATUS_CHOICES)
     margin = models.DecimalField(max_digits=10, decimal_places=2)
     penalty_risk = models.DecimalField(max_digits=10, decimal_places=2)
     no_of_windows_vms = models.PositiveIntegerField()
@@ -653,6 +653,7 @@ class YearlyCostSummary(models.Model):
     project_name = models.CharField(max_length=255 , default="Not available")
     SA_name = models.CharField(max_length=255, default="Not Assigned")
     product_name = models.CharField(max_length=50 ,default="No product_name provided")
+    project_status = models.CharField(max_length=50 ,default="No project_status provided")
     customer_name = models.CharField(max_length=255)
     y1 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
     y2 = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
@@ -687,6 +688,7 @@ class YearlyCostSummary(models.Model):
         customer_name = scoping_form.customer_name if scoping_form else "Unknown Customer"
         SA_name = scoping_form.SA_name
         product_name = scoping_form.product_name
+        project_status = scoping_form.project_status
 
         # Fetch the "Sum" row from the CostCalculation table
         sum_row = CostCalculation.objects.filter(cost_category="Sum").first()
@@ -699,6 +701,7 @@ class YearlyCostSummary(models.Model):
             yearly_cost_summary.customer_name = customer_name
             yearly_cost_summary.SA_name = SA_name
             yearly_cost_summary.product_name = product_name
+            yearly_cost_summary.project_status = project_status
             yearly_cost_summary.y1 = getattr(sum_row, 'y1', Decimal('0.00'))
             yearly_cost_summary.y2 = getattr(sum_row, 'y2', Decimal('0.00'))
             yearly_cost_summary.y3 = getattr(sum_row, 'y3', Decimal('0.00'))
@@ -716,6 +719,7 @@ class YearlyCostSummary(models.Model):
                 project_name=project_name,
                 SA_name = SA_name,
                 product_name = product_name,
+                project_status =project_status,
                 customer_name=customer_name,
                 y1=getattr(sum_row, 'y1', Decimal('0.00')),
                 y2=getattr(sum_row, 'y2', Decimal('0.00')),
@@ -737,6 +741,8 @@ class ProjectResourceUtilisation(models.Model):
     project_name = models.CharField(max_length=255 , default="Not available")
     SA_name = models.CharField(max_length=255, default="Not Assigned")
     product_name = models.CharField(max_length=50 ,default="No product_name provided")
+    project_status = models.CharField(max_length=50 ,default="No project_status provided")
+
     # Define columns for each role level with exact names
     Linux_Engineer_F = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
     Linux_Engineer_E2 = models.DecimalField(max_digits=10, decimal_places=5, default=Decimal('0.00000'))
@@ -789,6 +795,7 @@ class ProjectResourceUtilisation(models.Model):
         customer_name = scoping_form.customer_name
         SA_name = scoping_form.SA_name
         product_name = scoping_form.product_name
+        project_status = scoping_form.project_status
         
         # Create or get the utilisation record for the customer
         utilisation, created = cls.objects.get_or_create(project_name=project_name)
@@ -796,6 +803,7 @@ class ProjectResourceUtilisation(models.Model):
         utilisation.customer_name = customer_name
         utilisation.SA_name = SA_name
         utilisation.product_name = product_name
+        utilisation.project_status = project_status
 
         # Get all project costs
         project_costs = PrivatePublicCloudProjectCost.objects.all()

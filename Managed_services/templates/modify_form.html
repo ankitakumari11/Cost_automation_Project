@@ -1,7 +1,33 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
+  <style>
+    .button-container {
+      display: flex; /* Flexbox to align items horizontally */
+      justify-content: space-between; /* Distribute space evenly between buttons */
+      gap: 10px; /* Space between buttons */
+    }
+    
+    /* Button style */
+    .btn-new {
+      display: inline-block;  /* Make sure buttons are inline */
+      width: 68%;  /* Make each button take up 48% of the container width */
+      padding: 6px 12px;
+      font-size: 16px;
+      cursor: pointer;
+      text-align: center;
+      background: linear-gradient(135deg, #014871, #6691a9);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+    
+    .btn-new:hover {
+      background: linear-gradient(135deg, #6691a9, #014871);
+        transform: scale(1.05);
+    }
+    </style>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" 
@@ -23,8 +49,16 @@
     <div class="split-container">
         <div class="split-left">
             <div class="title">Modify Scoping Form</div><br>
-            <button class="btn btn-new" onclick="window.location.href='{% url 'home' %}'">Home</button>
-            <button class="btn btn-new" onclick="window.location.href='{% url 'new_form' %}'">Back to scoping form</button>
+
+            <div class="button-container">
+              <button class="btn-new" onclick="window.location.href='{% url 'new_form' %}'" >Back to scoping form</button>
+              <button class="btn-new" onclick="window.location.href='{% url 'home' %}'" >Back to Home</button>
+            </div>
+
+            {% comment %} <button class="btn btn-new" onclick="window.location.href='{% url 'home' %}'">Home</button>
+            <button class="btn btn-new" onclick="window.location.href='{% url 'new_form' %}'">Back to scoping form</button> {% endcomment %}
+
+            
       <form method="POST" autocomplete="on">   
         {% csrf_token %}    
         

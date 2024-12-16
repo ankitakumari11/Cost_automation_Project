@@ -135,7 +135,7 @@ def export_report_table(request):
     table_mapping = {
         "costSummary": "Managed_services_costsummary",
         "projectResourceUtilisation": "Managed_services_projectresourceutilisation",
-        "scopingForms": "Managed_services_scopingform",
+        # "scopingForms": "Managed_services_scopingform",
         "yearlyCostSummary": "Managed_services_yearlycostsummary",
     }
 
@@ -193,7 +193,7 @@ def reports(request):
     project_resource_utilisation = fetch_data(
     "SELECT * FROM Managed_services_projectresourceutilisation", "ProjectResourceUtilisation"
 )
-    scoping_forms = fetch_data("SELECT * FROM Managed_services_scopingform", "ScopingForm")
+    # scoping_forms = fetch_data("SELECT * FROM Managed_services_scopingform", "ScopingForm")
     yearly_cost_summary = fetch_data(
     "SELECT * FROM Managed_services_yearlycostsummary", "YearlyCostSummary"
 )
@@ -201,7 +201,7 @@ def reports(request):
     return render(request, "report.html", {
         "cost_summary": cost_summary,
         "project_resource_utilisation": project_resource_utilisation,
-        "scoping_forms": scoping_forms,
+        # "scoping_forms": scoping_forms,
         "yearly_cost_summary": yearly_cost_summary,
     })
 

@@ -68,13 +68,10 @@ class PrivatePublicCloudProjectCostAdmin(admin.ModelAdmin):
 admin.site.register(PrivatePublicCloudProjectCost, PrivatePublicCloudProjectCostAdmin)
 
 
-# @admin.register(PrivatePublicCloudProjectCost)
-# class PrivateCloudProjectCostAdmin(admin.ModelAdmin):
-#     list_display = ('role_level','private_kpi', 'public_kpi', 'unit', 'support_window', 'private_kpi_fte','public_kpi_fte','project_volume','project_fte','rate','total_monthly','complex')
 
 @admin.register(ProjectResourceUtilisation)
 class ProjectResourceUtilisationAdmin(admin.ModelAdmin):
-    list_display = ('project_name','SA_name','customer_name','product_name', 
+    list_display = ('project_name','SA_name','project_status','customer_name','product_name', 
                     'Linux_Engineer_F', 'Linux_Engineer_E2', 'Linux_Engineer_E3', 
                     'Windows_Engineer_F', 'Windows_Engineer_E2', 'Windows_Engineer_E3', 
                     'Cloud_Engineer_OCI_Cloud_F', 'Cloud_Engineer_OCI_Cloud_E2', 'Cloud_Engineer_OCI_Cloud_E3', 
@@ -113,5 +110,5 @@ class CostSummaryAdmin(admin.ModelAdmin):
 
 @admin.register(YearlyCostSummary)
 class YearlyCostSummaryAdmin(admin.ModelAdmin):
-    list_display = ('project_name','SA_name','customer_name','product_name','y1','y2', 'y3', 'y4' ,'y5','y6','y7','y8','y9','y10') 
+    list_display = ('project_name','SA_name','project_status','customer_name','product_name','y1','y2', 'y3', 'y4' ,'y5','y6','y7','y8','y9','y10') 
     actions = [export_to_excel]  # Add the export action
